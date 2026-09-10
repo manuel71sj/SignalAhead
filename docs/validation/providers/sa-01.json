@@ -1,0 +1,161 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/2",
+  "reviewedAt": "2026-09-10",
+  "status": "real-api-observed-timing-direction-and-field-validation-pending",
+  "evidenceKind": "public-document-review-real-api-observation-and-synthetic-regression",
+  "realProviderRequestsPerformed": 53,
+  "fieldComparisonsPerformed": 0,
+  "verifiedOperationalIntersections": [],
+  "operationalPredictionEnabled": false,
+  "liveObservationReport": "docs/validation/providers/national-live-observation.json",
+  "providers": {
+    "national": {
+      "requiredForInitialBeta": true,
+      "source": "https://www.data.go.kr/data/15157604/openapi.do",
+      "evidenceLocation": "페이지 내 swaggerJson 및 이용 조건 및 라이선스 정보",
+      "baseUrl": "https://apis.data.go.kr/B551982/rti",
+      "endpoints": ["/crsrd_map_info", "/tl_drct_info"],
+      "documentedRequestFields": {
+        "serviceKey": "필수 인증키; NATIONAL_SERVICE_KEY 환경변수로만 입력",
+        "pageNo": "선택 페이지 번호",
+        "numOfRows": "선택 페이지당 개수; 허용 최댓값 미확인",
+        "type": "선택 요청파일 타입; 도구는 json 요청, JSON/XML 응답 해석",
+        "stdgCd": "선택 법정동 지자체코드; 교차로별 crsrdId 요청 필터는 명세에 없음"
+      },
+      "documentedEnvelope": {
+        "successCode": "K0",
+        "header": ["resultCode", "resultMsg"],
+        "body": ["totalCount", "pageNo", "numOfRows", "items.item"],
+        "actualEnvelopeAndArrayShapeVerified": true,
+        "verificationScope": "확보한 K0 JSON 표본의 header/body, 정수 페이지 필드 및 items.item 배열. 실제 XML 응답 및 모든 오류 형식은 미검증.",
+        "observedEmptyCode": "K3",
+        "observedEmptyMessage": "NODATA_ERROR",
+        "documentedEmptyCode": "K03"
+      },
+      "documentedIdentity": ["stdgCd", "crsrdId"],
+      "time": {
+        "remainingFieldExample": "ntStsgRmndCs",
+        "documentedRemainingDescription": "북쪽_직진신호_잔여_센티초",
+        "millisecondsPerRawUnit": null,
+        "reason": "공개 필드 설명과 실응답·제공기관 근거를 대조하기 전 변환하지 않는다.",
+        "sourceField": "totDt",
+        "documentedSourceDescription": "집계일시",
+        "documentedSignalExample": "2026-03-12 10:04:01.587",
+        "documentedCatalogExample": "20260312050006",
+        "observedSignalTimestampFormat": "YYYYMMDDhhmmss 14자리 문자열",
+        "maxObservedUnchangedPayloadSpanMs": 50023.358,
+        "persistenceInterpretation": "같은 payload가 관측상 약 50초 유지됨. 이것만으로 원본 생성 나이·타임존·처리 지연을 확정하지 않는다.",
+        "timezone": null,
+        "sourceEventIdentity": null,
+        "sourceTimeKind": "unknown",
+        "sourceAgeUpperBoundMs": null,
+        "measuredUpdateIntervalMs": null
+      },
+      "direction": {
+        "documentedPrefixes": ["nt", "et", "st", "wt", "ne", "se", "sw", "nw"],
+        "documentedMovements": ["Bssg", "Bcsg", "Ltsg", "Pdsg", "Stsg", "Utsg"],
+        "documentedStateSuffix": "SttsNm",
+        "approachVersusTravelDirection": null,
+        "internalApproachMappingVerified": false
+      },
+      "specialValues": {
+        "observedRealValues": ["", "36001"],
+        "documentedExample36001Meaning": null,
+        "rule": "0, null, unknown sentinel을 구별하여 원문 단위로 보존한다. 36001을 정상 시간으로 환산하거나 특수값으로 확정하지 않는다."
+      },
+      "license": {
+        "portalLabel": "이용허락범위 제한 없음",
+        "feeLabel": "무료",
+        "approvalLabel": "개발단계 자동승인 / 운영단계 자동승인",
+        "accountApprovalEvidence": "사용자 제공 활용신청 상세기능 화면 및 두 엔드포인트의 실제 K0 응답. 운영계정 승인 증거로 확대 해석하지 않음.",
+        "sampleStorageApprovalEvidence": "사용자가 요청한 API 검증용 비공개 수집 및 포털의 이용허락범위 제한 없음 표기",
+        "redistributionAndAttributionReview": "공개 표본은 인증·등록자 정보를 제거한 최소 응답 투영만 포함. 운영 재배포·출처 의무 검토는 별도 유지.",
+        "providerDisclaimer": "데이터 처리로 실제 신호 시간과 차이가 발생할 수 있어 참고용 사용 권고; 손해·사고·법적 책임 면책 안내"
+      },
+      "quota": {
+        "portalDevelopmentTrafficLabel": "5,000",
+        "portalIncreaseCondition": "운영계정: 활용사례 등록시 신청하면 트래픽 증가 가능",
+        "accountRequestsPerSecond": null,
+        "accountRequestsPerWindow": 5000,
+        "window": "엔드포인트별 일일 — 사용자 제공 활용신청 화면 확인",
+        "remainingSharedAccountBudget": null,
+        "quotaResetTimezone": null,
+        "rule": "각 엔드포인트 일일 5,000회는 사용자 화면에서 확인했다. 이번 실제 호출은 교차로 1회·신호 52회이며, 초당 제한·리셋 시각·다른 사용자의 소비량은 미확인이다. 10초 간격은 제한된 조사 실행의 선택값이지 검증된 제공자 제한이나 운영 정책이 아니다."
+      },
+      "realCoverage": {
+        "catalogSeoulTotalAtProbe": 2779,
+        "catalogRowsCaptured": 5,
+        "unfilteredSignalTotalAtProbe": 407,
+        "unfilteredSignalRowsCaptured": 5,
+        "boundedSeoulWindowDistinctIntersections": 6,
+        "coverageComplete": false,
+        "interpretation": "응답 시점과 요청 범위별 표본이다. 고정된 전국 지원 규모·실증 교차로 선정 완료를 뜻하지 않는다."
+      },
+      "fullSignalCyclesObservedPerIntersection": null,
+      "blockers": ["교차로별 완전한 신호 주기 3회 검증 미달: 7분 20초 동안 반복·누락·부분적인 상태 변화만 관측", "시간 기준·단위·방향·특수값 의미·원본 이벤트 동등성 및 현장 신호 대조 미완료", "운영용 초당 제한·공유 잔여량·재배포 승인 및 보정 정책 미확인"]
+    },
+    "seoul": {
+      "requiredForInitialBeta": false,
+      "expansionGate": "https://github.com/manuel71sj/SignalAhead/issues/16",
+      "sources": ["https://t-data.seoul.go.kr/category/dataviewopenapi.do?data_id=10119", "https://t-data.seoul.go.kr/category/dataviewopenapi.do?data_id=10120", "https://www.data.go.kr/data/15102651/openapi.do", "https://www.data.go.kr/data/15102652/openapi.do"],
+      "documentedEndpointPaths": ["/apig/apiman-gateway/tapi/v2xSignalPhaseInformation/1.0", "/apig/apiman-gateway/tapi/v2xSignalPhaseTimingInformation/1.0"],
+      "documentedRequestFields": ["apiKey", "type", "pageNo", "numOfRows", "itstId"],
+      "credentialEnvironment": "SEOUL_API_KEY",
+      "credentialPresentAtReview": false,
+      "licenseLabel": "저작자 표시(BY)",
+      "unitConflict": "ntStsgRmdrCs 등의 변수 설명은 센티초, 값 설명은 1/10초. /10 또는 /100 변환 미확정.",
+      "documentedIdentityAndTimeFields": ["itstId", "eqmnId", "dataId", "trsmUtcTime"],
+      "joinEquivalenceVerified": false,
+      "operationalHttpsVerified": false,
+      "blockers": ["명세 샘플 URL은 HTTP; 운영 HTTPS 확인 전 키 전송 금지", "서울 승인·인증키·계정별 쿼터 확인 필요", "단위 충돌 해결 및 상태/시간의 동일 이벤트 결합 증거 필요"],
+      "doesNotBlockNationalInvestigation": true
+    },
+    "ulsan": {
+      "requiredForInitialBeta": false,
+      "expansionGate": "https://github.com/manuel71sj/SignalAhead/issues/18",
+      "sources": ["https://www.data.go.kr/data/15099676/openapi.do", "https://www.data.go.kr/tcs/dss/selectApiDetailFunction.do?oprtinSeqNo=42559&publicDataDetailPk=uddi%3A87a47201-5a8a-48ab-84d8-b533916c91e1_202206081355&publicDataPk=15099676"],
+      "endpoint": "https://apis.data.go.kr/6310000/citsapi/service/signal",
+      "detailFunction": "42559",
+      "documentedRequestFields": ["serviceKey", "linkId"],
+      "credentialEnvironment": "ULSAN_SERVICE_KEY",
+      "credentialPresentAtReview": false,
+      "documentedSignalFields": {"type": "1 직진 / 2 좌회전", "color": "1 빨강 / 2 주황 / 3 녹색", "remain_time": "초", "ovpa_clss": "0 일반 / 1 고가도로 / 2 지하도"},
+      "explicitGenerationTimestampInPublicSignalTable": false,
+      "sourceAgeUpperBoundMs": null,
+      "licenseLabel": "공공저작물: 출처표시, 상업적 이용금지 (제2유형)",
+      "portalDevelopmentTrafficLabel": "100",
+      "quotaWindowAndAccountLimit": null,
+      "blockers": ["목적에 맞는 이용허락 및 상업적 이용 시 별도 허락 근거 필요", "잔여시간 기준 이벤트·지연 상한·방향 의미·실응답 확인 필요", "실제 계정 승인·쿼터 기간 확인 필요"],
+      "exclusions": ["/tim/vms", "VMS ctnt 신호 파서"],
+      "doesNotBlockNationalInvestigation": true
+    }
+  },
+  "tool": {
+    "entryPoint": "tools/provider-probe/probe.py",
+    "runtime": "Python 3.9+ 표준 라이브러리; Flutter/Fastify 개발 기반을 선행 구현하지 않음",
+    "commands": {
+      "preflight": "python3 tools/provider-probe/probe.py preflight",
+      "syntheticReplay": "python3 tools/provider-probe/probe.py replay --input fixtures/providers/national/synthetic-sequence.json --output .provider-probe/synthetic-run-01",
+      "collectHelp": "python3 tools/provider-probe/probe.py collect --help",
+      "regression": "python3 -m unittest discover -s tools/provider-probe -p 'test_*.py' -v"
+    },
+    "liveProcedure": [
+      "공공데이터포털에서 전국 API 활용 승인·계정별 초당/기간별 한도·검증용 표본 저장 권리를 확인한다. 키 값이나 인증 URL을 저장소·이슈·채팅에 넣지 않는다.",
+      "NATIONAL_SERVICE_KEY는 수집을 실행하는 서버/로컬 프로세스의 환경변수로만 제공한다. 포털 일반키 또는 percent-encoded 키를 한 번 정규화하여 요청한다. 도구가 인증 파일을 탐색하거나 키를 출력하지 않는다.",
+      "tools/provider-probe/approval.schema.json을 따라 비공개 .provider-probe/approval.json에 실제 실행 전용 배정량·최소 간격·유효기간·지역·엔드포인트·승인 근거 ID를 기록한다. 합성 테스트 승인값을 복사하여 실호출에 사용하지 않는다.",
+      "collect의 endpoint, approval, rows, max-pages, rounds, interval, output을 설정한다. stdg-cd는 선택이며 생략하려면 승인 배정 JSON에 stdgCd:null을 명시해야 한다. 지역 한정 배정으로 전국 조회를 허용하지 않는다. rounds × max-pages가 배정량 이하이고 interval이 배정된 최소 간격 이상이어야 한다. 카탈로그와 실시간 신호는 별도 배정으로 수집한다.",
+      ".used가 생성된 승인 배정은 재사용하지 않는다. 실패·중단 시에도 예약량을 소진 처리한다. 다른 실행·사용자의 요청 소비량은 계정 운영자가 함께 관리한다.",
+      "새 비공개 출력 디렉터리에 observations.jsonl 및 summary.json을 저장한다. 개인/등록자 정보와 미확인 필드는 버리고, URL·환경변수 키 값을 제거한다. 공개 전 별도 권리·민감정보 검토를 거쳐 필요한 표본만 fixtures/providers에 옮긴다.",
+      "collection_complete는 설정한 수집 범위의 완료일 뿐 3주기 관측·지원 구간 승인·정확도 검증이 아니다. 실제 관측으로 단위·방향·특수값·시간 의미·원본 순서·갱신/누락/오류를 확인하고 교차로별 완전한 주기 3회 이상 증거를 수동 검토한다."
+    ],
+    "exitCodes": {"0": "설정한 수집 또는 합성 리플레이 완료; 운영 검증 완료 아님", "1": "제공자/네트워크/응답 오류로 수집 중단; 자동 재시도 없음", "2": "입력·승인·권한·페이지 범위 또는 실증 선행 조건 미충족", "130": "수집 중 사용자가 중단"},
+    "verification": {
+      "syntheticReplayObservations": 8,
+      "repeatedPayloadFirstSeenPreserved": true,
+      "localSyntheticHttpPages": 2,
+      "regressionTestsPassed": 10,
+      "realApiResponsesObserved": true,
+      "fieldValidationPerformed": false
+    }
+  }
+}

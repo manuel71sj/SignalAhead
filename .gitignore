@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.provider-probe/
+__pycache__/
+*.py[cod]
+.ruff_cache/

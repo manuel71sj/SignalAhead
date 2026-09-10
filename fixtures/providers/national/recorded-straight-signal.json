@@ -1,0 +1,53 @@
+{
+  "origin": "recorded",
+  "provider": "national",
+  "capturedAtUtcMs": 1789034339610,
+  "source": "https://apis.data.go.kr/B551982/rti/tl_drct_info",
+  "request": {
+    "stdgCd": "1100000000",
+    "pageNo": 1,
+    "numOfRows": 5,
+    "type": "json"
+  },
+  "httpStatus": 200,
+  "projection": "Actual response envelope and vehicle-straight fields only; other movements and registration metadata omitted. No operational time-unit or direction mapping has been approved.",
+  "payload": {
+    "header": {
+      "resultCode": "K0",
+      "resultMsg": "NORMAL_SERVICE",
+      "context": "https://ido.sharedata.go.kr/dcat/catalog/c0007.json",
+      "dataset": "KLID-DATASET-d0007",
+      "service": "KLID-d0007-s0002"
+    },
+    "body": {
+      "totalCount": 1,
+      "pageNo": 1,
+      "numOfRows": 5,
+      "items": {
+        "item": [
+          {
+            "stdgCd": "1100000000",
+            "crsrdId": "1850",
+            "ntStsgRmndCs": "21",
+            "ntStsgSttsNm": "protected-Movement-Allowed",
+            "etStsgRmndCs": "261",
+            "etStsgSttsNm": "stop-And-Remain",
+            "stStsgRmndCs": "21",
+            "stStsgSttsNm": "protected-Movement-Allowed",
+            "wtStsgRmndCs": "",
+            "wtStsgSttsNm": "",
+            "neStsgRmndCs": "",
+            "neStsgSttsNm": "",
+            "seStsgRmndCs": "",
+            "seStsgSttsNm": "",
+            "swStsgRmndCs": "",
+            "swStsgSttsNm": "",
+            "nwStsgRmndCs": "",
+            "nwStsgSttsNm": "",
+            "totDt": "20260910185819"
+          }
+        ]
+      }
+    }
+  }
+}

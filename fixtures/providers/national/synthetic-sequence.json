@@ -1,0 +1,31 @@
+{
+  "origin": "synthetic",
+  "endpoint": "tl_drct_info",
+  "description": "명세 기반 합성 데이터. 실제 제공 교차로·API 응답·현장 주기가 아니다. 단위 변환과 신호 이벤트 순서는 미검증이다.",
+  "responses": [
+    {
+      "elapsedMs": 0,
+      "httpStatus": 200,
+      "payload": {"header": {"resultCode": "K0", "resultMsg": "NORMAL_SERVICE"}, "body": {"totalCount": "1", "pageNo": "1", "numOfRows": "1", "items": {"item": {"stdgCd": "0000000000", "crsrdId": "SYNTHETIC-A", "totDt": "2026-01-01 00:00:01.000", "ntStsgSttsNm": "protected-Movement-Allowed", "ntStsgRmndCs": "36001", "regId": "must-not-be-saved"}}}}
+    },
+    {
+      "elapsedMs": 1000,
+      "httpStatus": 200,
+      "payload": {"header": {"resultCode": "K0"}, "body": {"totalCount": "1", "pageNo": "1", "numOfRows": "1", "items": {"item": {"stdgCd": "0000000000", "crsrdId": "SYNTHETIC-A", "totDt": "2026-01-01 00:00:01.000", "ntStsgSttsNm": "protected-Movement-Allowed", "ntStsgRmndCs": "36001"}}}}
+    },
+    {
+      "elapsedMs": 2000,
+      "httpStatus": 200,
+      "payload": "<response><header><resultCode>K0</resultCode></header><body><totalCount>1</totalCount><pageNo>1</pageNo><numOfRows>1</numOfRows><items><item><stdgCd>0000000000</stdgCd><crsrdId>SYNTHETIC-A</crsrdId><totDt>2026-01-01 00:00:00.000</totDt><ntStsgSttsNm>stop-And-Remain</ntStsgSttsNm><ntStsgRmndCs>0</ntStsgRmndCs></item></items></body></response>"
+    },
+    {
+      "elapsedMs": 3000,
+      "httpStatus": 200,
+      "payload": {"header": {"resultCode": "K0"}, "body": {"totalCount": "1", "pageNo": "1", "numOfRows": "1", "items": {"item": {"stdgCd": "0000000000", "crsrdId": "SYNTHETIC-A", "totDt": "2026-01-01 00:00:01.000", "ntStsgSttsNm": "protected-Movement-Allowed", "ntStsgRmndCs": "36001"}}}}
+    },
+    {"elapsedMs": 4000, "httpStatus": 200, "payload": {"header": {"resultCode": "K03", "resultMsg": "NODATA_ERROR"}}},
+    {"elapsedMs": 5000, "httpStatus": 200, "payload": {"header": {"resultCode": "K20", "resultMsg": "https://example.invalid/?serviceKey=must-not-be-saved"}}},
+    {"elapsedMs": 6000, "httpStatus": 429, "payload": "must-not-be-saved"},
+    {"elapsedMs": 7000, "httpStatus": 200, "payload": "{invalid JSON must-not-be-saved"}
+  ]
+}

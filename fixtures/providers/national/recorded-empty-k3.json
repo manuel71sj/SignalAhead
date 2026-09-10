@@ -1,0 +1,20 @@
+{
+  "origin": "recorded",
+  "provider": "national",
+  "capturedAtUtcMs": 1789034416069,
+  "source": "https://apis.data.go.kr/B551982/rti/tl_drct_info",
+  "request": {
+    "stdgCd": "1100000000",
+    "pageNo": 1,
+    "numOfRows": 5,
+    "type": "json"
+  },
+  "httpStatus": 200,
+  "redaction": "Actual response header projection only; authentication query, raw body and request credentials are not included.",
+  "payload": {
+    "header": {
+      "resultCode": "K3",
+      "resultMsg": "NODATA_ERROR"
+    }
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/2",
+  "origin": "recorded-investigation",
+  "firstRequestSentAtUtcMs": 1789034284406,
+  "lastResponseReceivedAtUtcMs": 1789035080631,
+  "actualRequests": 53,
+  "requestsByEndpoint": {
+    "crsrd_map_info": 1,
+    "tl_drct_info": 52
+  },
+  "httpStatusCounts": {
+    "200": 53
+  },
+  "providerResultCodeCounts": {
+    "K0": 42,
+    "K3": 11
+  },
+  "approvalEvidence": {
+    "reference": "user-service-details-screenshot-20260910",
+    "dailyLimitPerEndpoint": 5000,
+    "requestsPerSecond": null,
+    "remainingSharedAccountBudget": null,
+    "quotaResetTimezone": null,
+    "screenshotStoredInRepository": false,
+    "note": "Screenshot contains a key, so only nonsensitive quota facts are recorded. Bounded investigation allocations do not authorize production collection."
+  },
+  "catalogProbe": {
+    "region": "1100000000",
+    "returnedTotalCount": 2779,
+    "capturedRows": 5,
+    "coverageComplete": false
+  },
+  "nationwideSignalProbe": {
+    "region": null,
+    "returnedTotalCount": 407,
+    "capturedRows": 5,
+    "coverageComplete": false,
+    "note": "A time-local count, not a stable national coverage guarantee."
+  },
+  "boundedSeoulWindow": {
+    "requests": 45,
+    "outcomes": {
+      "ok": 36,
+      "empty": 9
+    },
+    "elapsedObservationMs": 440141.544,
+    "returnedTotalCountRange": [
+      2,
+      6
+    ],
+    "intersectionCount": 6,
+    "intersections": [
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "1537",
+        "observations": 13,
+        "distinctPayloads": 3,
+        "distinctSourceTimes": 3,
+        "repeatedObservations": 10,
+        "maxUnchangedPayloadSpanMs": 50003.577,
+        "straightStateChanges": 2,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 0,
+          "median": null
+        },
+        "verifiedCompleteSignalCycles": null
+      },
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "1574",
+        "observations": 1,
+        "distinctPayloads": 1,
+        "distinctSourceTimes": 1,
+        "repeatedObservations": 0,
+        "maxUnchangedPayloadSpanMs": 0,
+        "straightStateChanges": 0,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 0,
+          "median": null
+        },
+        "verifiedCompleteSignalCycles": null
+      },
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "1619",
+        "observations": 24,
+        "distinctPayloads": 5,
+        "distinctSourceTimes": 5,
+        "repeatedObservations": 19,
+        "maxUnchangedPayloadSpanMs": 50020.019,
+        "straightStateChanges": 0,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 4,
+          "median": 2.3447748513169073
+        },
+        "verifiedCompleteSignalCycles": null
+      },
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "1850",
+        "observations": 36,
+        "distinctPayloads": 8,
+        "distinctSourceTimes": 8,
+        "repeatedObservations": 28,
+        "maxUnchangedPayloadSpanMs": 50023.358,
+        "straightStateChanges": 3,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 0,
+          "median": null
+        },
+        "verifiedCompleteSignalCycles": null
+      },
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "2691",
+        "observations": 36,
+        "distinctPayloads": 8,
+        "distinctSourceTimes": 8,
+        "repeatedObservations": 28,
+        "maxUnchangedPayloadSpanMs": 50023.358,
+        "straightStateChanges": 3,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 8,
+          "median": 9.345462713387242
+        },
+        "verifiedCompleteSignalCycles": null
+      },
+      {
+        "stdgCd": "1100000000",
+        "crsrdId": "929",
+        "observations": 7,
+        "distinctPayloads": 2,
+        "distinctSourceTimes": 2,
+        "repeatedObservations": 5,
+        "maxUnchangedPayloadSpanMs": 50003.577,
+        "straightStateChanges": 0,
+        "descriptiveRawCountdownDecreasePerSourceSecond": {
+          "samples": 0,
+          "median": null
+        },
+        "verifiedCompleteSignalCycles": null
+      }
+    ],
+    "limitation": "Source-clock differences and raw countdown rates are descriptive only. Units, event equivalence, timezone, freshness and full cycles remain unverified."
+  },
+  "observedResponseContract": {
+    "successCode": "K0",
+    "emptyCode": "K3",
+    "emptyMessage": "NODATA_ERROR",
+    "documentedEmptyCode": "K03",
+    "jsonRoot": [
+      "header",
+      "body"
+    ],
+    "paginationScalarTypes": {
+      "totalCount": "integer",
+      "pageNo": "integer",
+      "numOfRows": "integer"
+    },
+    "itemsShape": "items.item array",
+    "observedSignalTotDtFormat": "14-digit YYYYMMDDhhmmss; timezone and event meaning unverified",
+    "rawSpecialValuesObserved": [
+      "",
+      "36001"
+    ]
+  },
+  "changesVerified": {
+    "realK3NoDataPollingRegression": "failed before fix; passes after fix",
+    "unscopedDiscovery": "requires explicit stdgCd:null allocation; regional allocation cannot broaden scope",
+    "regressionTestsPassed": 10,
+    "ruffCheck": "passed"
+  },
+  "fieldComparisonsPerformed": 0,
+  "operationalPredictionEnabled": false,
+  "remainingGates": [
+    "Provider confirmation of source event/timezone, remaining-time unit and sentinel semantics",
+    "Direction-to-road/approach/stop-line validation",
+    "Three verified complete signal cycles per chosen pilot intersection; partial API observations are insufficient",
+    "Approved freshness/error policy calibrated with independent field comparison",
+    "Account per-second limit, remaining shared usage and production/redistribution approval review"
+  ],
+  "privateEvidenceDirectory": ".provider-probe/national-initial-20260910T095747Z",
+  "publicFixtures": [
+    "fixtures/providers/national/recorded-empty-k3.json",
+    "fixtures/providers/national/recorded-straight-signal.json"
+  ],
+  "interpretation": "Payload unchanged spans are observed persistence, not a verified source generation age. Raw countdown slopes do not authorize a unit conversion. Counts, observed transitions and successful polling do not prove safe or complete signal cycles."
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "National provider-probe single-use request allocation",
+  "description": "운영 예측 승인서가 아니다. 실제 계정 승인 내역에서 조사 실행 1회에 별도로 배정한 호출 수만 기록한다. 다른 프로세스·사용자의 소비량을 제외하고 배정한다. serviceKey나 인증 URL을 넣지 않는다. 포털 표기 5,000을 일일 한도나 배정량으로 자동 사용하지 않는다. 실행 시 .used 파일을 원자적으로 생성하여 배정량 전체를 소진 처리한다. 복사본으로 재사용하거나 .used를 삭제하지 않는다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "evidenceRef", "expiresAtUtc", "allocatedRequests", "minIntervalSeconds", "sampleStorageAllowed", "stdgCd", "allowedEndpoints"],
+  "properties": {
+    "provider": {"const": "national"},
+    "evidenceRef": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$", "description": "비공개 승인 기록을 가리키는 비밀정보 없는 식별자. 토큰·URL·개인정보 금지."},
+    "expiresAtUtc": {"type": "string", "format": "date-time", "description": "명시적 UTC offset을 포함하는 승인 만료시각. 요청 직전마다 만료를 검사한다."},
+    "allocatedRequests": {"type": "integer", "minimum": 1, "description": "계정 잔여 한도에서 이 실행 전용으로 예약한 호출 수. rounds × max-pages 이상이어야 한다. 쿼터 기간이 바뀌면 새 승인 기록이 필요하다."},
+    "minIntervalSeconds": {"type": "number", "exclusiveMinimum": 0, "description": "승인된 초당 한도와 공유 사용량을 반영한 모든 요청 시작 간 최소 간격. 신호 최신성 정책이 아니다."},
+    "sampleStorageAllowed": {"const": true, "description": "검증용 응답 표본의 비공개 저장 권리가 확인됐을 때만 true. 공개 재배포 권리를 대신하지 않는다."},
+    "stdgCd": {"type": ["string", "null"], "pattern": "^[0-9]{10}$", "description": "명시적인 null은 지역 필터 없는 전국 조사 배정이다. 특정 지역 배정으로 전국 조회를 허용하지 않는다."},
+    "allowedEndpoints": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["crsrd_map_info", "tl_drct_info"]}}
+  }
+}
