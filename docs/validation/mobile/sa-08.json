@@ -1,0 +1,28 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/9",
+  "status": "mobile-session-state-source-added-flutter-runtime-blocked",
+  "artifacts": {
+    "stateMachine": "apps/mobile/lib/drive_session/drive_session_state.dart",
+    "locationSample": "apps/mobile/lib/location/location_sample.dart",
+    "androidManifest": "apps/mobile/android/app/src/main/AndroidManifest.xml",
+    "iosPlist": "apps/mobile/ios/Runner/Info.plist",
+    "tests": "apps/mobile/test/drive_session/drive_session_state_test.dart"
+  },
+  "implemented": [
+    "Foreground-only drive session state machine: idle, requestingPermission, acquiringLocation, driving, paused and stopped.",
+    "Location stream is inactive before explicit StartDriving, while requesting permission, after pause, after stop and after permission revocation.",
+    "Permission blockers distinguish denied, denied forever, precise location off, service off and stale last-known location.",
+    "Platform invalid speed/course/accuracy sentinel values normalize to null instead of 0 or north.",
+    "Android declares only foreground coarse/fine location permissions. iOS declares When In Use location usage text only."
+  ],
+  "verification": {
+    "manifestSyntax": "plutil -lint apps/mobile/ios/Runner/Info.plist => OK; Python ElementTree parsed AndroidManifest.xml",
+    "apiRegression": "npm run check:api && npm run test:api => 18 tests passed",
+    "flutterAttempt": "flutter --version failed with command not found; flutter test and real iOS/Android sensor execution were not possible locally"
+  },
+  "notClosedReasons": [
+    "SA-08 requires real iOS/Android location sensor event conversion to LocationSample; Flutter SDK and simulators are unavailable locally.",
+    "No geolocator stream integration can be proven until Flutter toolchain is available.",
+    "App background/permission-revocation behavior needs device or simulator verification."
+  ]
+}
