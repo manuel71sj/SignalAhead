@@ -20,7 +20,7 @@ export type DependencyClients = {
 };
 
 async function defaultDatabasePing(databaseUrl: string): Promise<void> {
-  const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+  const pool = new pg.Pool({ connectionString: databaseUrl, max: 1, connectionTimeoutMillis: 1500, query_timeout: 1500, statement_timeout: 1500 });
   try {
     await pool.query("select 1");
   } finally {
@@ -29,7 +29,8 @@ async function defaultDatabasePing(databaseUrl: string): Promise<void> {
 }
 
 async function defaultRedisPing(redisUrl: string): Promise<void> {
-  const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 0 });
+  const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 0, connectTimeout: 1500, commandTimeout: 1500, retryStrategy: () => null, enableOfflineQueue: false });
+  redis.on("error", () => { /* Readiness reports unavailable without logging connection credentials. */ });
   try {
     await redis.connect();
     await redis.ping();

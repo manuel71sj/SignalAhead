@@ -4,7 +4,7 @@ export type SourceLedger = {
   sourceId: string;
   provider: string;
   revision: string;
-  origin: "synthetic" | "recorded" | "official";
+  origin: "synthetic" | "recorded";
   crs: string;
   rights: {
     storage: RightDecision;
@@ -12,7 +12,7 @@ export type SourceLedger = {
     redistribution: RightDecision;
     deviceMatching: RightDecision;
   };
-  evidence: string;
+  evidence?: string;
 };
 
 export type CatalogIntersection = {
@@ -20,7 +20,7 @@ export type CatalogIntersection = {
   provider: string;
   sourceIntersectionId: string;
   rawSourceIdentity: Record<string, unknown>;
-  name: string | null;
+  name: string;
   coordinates: [number, number];
   source: string;
 };
@@ -30,9 +30,9 @@ export type CatalogApproach = {
   intersectionKey: string;
   movement: "straight" | "left" | "uturn" | "bus" | "bicycle" | "pedestrian";
   enabledForOperation: boolean;
-  roadLinkId: string;
-  stopLineId: string;
-  level: number;
+  roadLinkId: string | null;
+  stopLineId: string | null;
+  level: number | null;
   sourceDirectionCode: "nt" | "et" | "st" | "wt" | "ne" | "se" | "sw" | "nw";
   directionReview: { verified: boolean; evidence: string };
   geometryReview: { verified: boolean; evidence: string };
@@ -40,9 +40,15 @@ export type CatalogApproach = {
 };
 
 export type DisabledRegion = {
+  regionKey: string;
+  reason: "RIGHTS_UNVERIFIED" | "GEOMETRY_UNVERIFIED" | "SIGNAL_UNAVAILABLE" | "POLICY_DISABLED";
+  effectiveFromCatalogVersion: string;
+};
+
+export type DisableCommand = {
   scope: "provider" | "intersection" | "approach";
   key: string;
-  reason: "RIGHTS_UNVERIFIED" | "GEOMETRY_UNVERIFIED" | "DIRECTION_UNVERIFIED" | "OPERATION_PAUSED";
+  reason: DisabledRegion["reason"];
   evidence: string;
 };
 
@@ -58,6 +64,10 @@ export type ApproachCatalog = {
 
 export type CatalogValidationIssue = {
   code:
+    | "INVALID_SCHEMA"
+    | "SYNTHETIC_SOURCE"
+    | "UNSUPPORTED_GEOMETRY"
+    | "INVALID_SOURCE_IDENTITY"
     | "INVALID_COORDINATES"
     | "MISSING_SOURCE"
     | "MISSING_INTERSECTION"

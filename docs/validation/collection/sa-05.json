@@ -1,6 +1,6 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/6",
-  "status": "non-operational-normalizer-and-budget-controls-implemented",
+  "status": "honest-unverified-normalization-verified-live-collector-disabled",
   "artifacts": {
     "normalizer": "services/api/src/providers/national/normalize.ts",
     "types": "services/api/src/providers/national/types.ts",
@@ -13,28 +13,25 @@
     ]
   },
   "decisions": {
-    "timeUnit": "National remaining-time field is preserved as a raw integer but timingQuality remains unverified and sourceUnit remains unknown because SA-01 did not prove the unit or source time semantics.",
-    "sourceIdentity": "National sourceIntersectionId is stdgCd + ':' + crsrdId.",
-    "direction": "Eight raw direction prefixes are retained as sourceDirectionCode and mapped only to internal straight approach keys; no operational road-direction approval is inferred.",
-    "requestSharing": "Subscriptions are grouped by provider region request, so 1 and 100 subscribers for the same stdgCd share one origin request unit.",
-    "budget": "No collection request is allowed without explicit daily and per-second budget. Retry attempts reserve budget like normal requests.",
-    "cache": "Duplicate source events update lastSeenAtUtcMs only and do not extend expiresAtUtcMs. Older source events are ignored. Unknown ordering remains disabled for prediction."
+    "timeUnit": "National remainingAtSourceMs and expiresAtUtcMs are null. Raw remaining values remain strings in separate parse-result diagnostics; no raw value is represented as milliseconds without verified unit evidence.",
+    "sourceTime": "National sourceEventId and sourceObservedAtUtcMs are null, sourceRevision is unknown, and sourceTimeKind is unknown. Raw totDt is preserved only in diagnostics, not fabricated into an event identifier or lexically sortable timestamp.",
+    "sourceIdentity": "National sourceIntersectionId preserves stdgCd + ':' + crsrdId.",
+    "direction": "Raw direction prefixes remain diagnostic values and parts of candidate source approach keys; they confer no operational road-direction approval.",
+    "requestSharing": "Request planning groups same-region subscriptions; no live collection loop is enabled.",
+    "budget": "Existing request budgeting requires configured daily and per-second limits; it does not prove an approved provider quota exists.",
+    "cache": "Canonical observations are schema-validated. Duplicate receipt does not extend expiry. Only verified source generation times establish order; opaque event IDs never do. Conflicting unknown-order replacement loses prediction timing. Cache cardinality is bounded at 10000."
   },
   "verification": {
-    "apiTypecheck": "npm run check:api => pass",
-    "apiTests": "npm run test:api => 10 tests passed",
-    "scenarios": [
-      "Recorded redacted national signal fixture normalizes to eight disabled observations without approving prediction timing.",
-      "K3 and K03 are empty results rather than fatal provider errors.",
-      "Provider auth messages redact serviceKey query values.",
-      "100 same-region subscribers produce one national request plan entry.",
-      "Unconfigured quota blocks collection; retry backoff is bounded; retries consume budget.",
-      "A -> A duplicate -> older B -> new C preserves A expiry, ignores B, accepts C."
+    "status": "passed-local-and-pinned-compose-runtime",
+    "results": "API typecheck/build and all 37 API tests passed, including normalizer/cache regressions. No live provider request was made during this runtime repair.",
+    "commands": [
+      "npm run check:api",
+      "npm --workspace services/api test -- test/providers/national.test.ts test/collection/collection.test.ts"
     ]
   },
   "notClosedReasons": [
-    "SA-05 depends on SA-01 provider timing/unit/direction evidence and SA-04 runtime readiness, both still open.",
-    "No live operational collector is enabled because approved quota and timing semantics are not available.",
-    "The implemented normalizer is intentionally non-operational for predictions until provider evidence is supplied."
+    "National source unit, source time semantics and operational direction mapping remain unverified.",
+    "No live operational collector, approved provider quota or Redis signal distribution is implemented/enabled.",
+    "The in-process signal cache is not evidence of an operational provider feed."
   ]
 }

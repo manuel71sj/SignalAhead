@@ -1,33 +1,41 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/8",
-  "status": "route-and-stream-contract-implemented-with-in-memory-fixtures",
+  "status": "bounded-fail-closed-routes-verified-operational-feed-blocked",
   "artifacts": {
     "catalogRoute": "services/api/src/routes/catalog.ts",
     "signalsRoute": "services/api/src/routes/signals.ts",
     "streamRoute": "services/api/src/routes/stream.ts",
     "streamProtocol": "services/api/src/realtime/protocol.ts",
+    "app": "services/api/src/app.ts",
     "tests": "services/api/test/routes/routes.test.ts"
   },
   "implemented": [
-    "GET /v1/catalog validates bounded CRS84 bbox and returns catalogVersion with supported intersections/approaches or an empty list.",
-    "GET /v1/signals returns explicit unavailable reasons for unknown targets, unsupported movements, expired signals and catalog mismatch.",
-    "WebSocket /v1/stream accepts subscribe/unsubscribe messages and emits snapshot/unavailable/error messages with requestId, streamEpoch and monotonic sequence.",
-    "Each StreamProtocol instance generates a fresh epoch so reconnect after server restart is distinguishable from old delayed messages.",
-    "Stream message size and per-connection subscription count are bounded."
+    "GET /v1/catalog parses complete decimal bbox fields, enforces CRS84 bounds and a maximum one-degree span per axis, and limits results to 1000 supported approaches. Intersections without supported approaches are not advertised.",
+    "HTTP and WebSocket share one snapshot gate requiring matching current catalog version, active enabled straight approach, complete provider identity, verified generation time and known units. Null timing, expired phase/TTL, future or old source times and unknown/flashing signal states are unavailable.",
+    "Transport safety uses a maximum source/receipt age of 5000ms; this conservative cutoff does not establish provider units or source-time semantics.",
+    "WebSocket registration is awaited before upgrade route declaration. Malformed JSON is handled as a protocol error rather than escaping the message callback.",
+    "Subscribe sends complete current state, never a delta requiring a prior connection. Messages carry requestId, streamEpoch and per-connection sequence.",
+    "A shared 250ms poll reads the current PostgreSQL catalog and emits changed snapshots, expiry and catalog invalidations. Database read failures produce unavailable; query time is bounded.",
+    "Bounds: 2048-byte incoming payload, 128-character requestId, 512-character approach/version keys, 32 subscriptions per connection, 64 connections, 20 messages per second per connection, and 65536-byte outgoing buffer. Heartbeats terminate unresponsive peers; shutdown removes timers and connections."
   ],
   "verification": {
-    "apiTypecheck": "npm run check:api => pass",
-    "apiTests": "npm run test:api => 18 tests passed",
-    "scenarios": [
-      "Invalid bbox returns 400; empty supported area returns 200 with empty catalog lists.",
-      "Golden catalog bbox returns supported approaches only.",
-      "Unknown approachKey and catalogVersion mismatch return unavailable instead of fake signals.",
-      "Reconnect starts at sequence 1 with a new streamEpoch and full snapshot."
+    "status": "passed-local-and-pinned-compose-runtime",
+    "results": "All 37 API tests passed, including a real socket test of initial snapshot, expiry, catalog invalidation and connection rate limits. Separate live API smoke returned INVALID_MESSAGE for malformed JSON, then CATALOG_UNAVAILABLE on a valid subscription without disconnecting.",
+    "commands": [
+      "npm run check:api",
+      "npm --workspace services/api test -- test/routes/routes.test.ts",
+      "PORT=3080 npm run dev:api"
+    ],
+    "runtimeScenariosObserved": [
+      "Fresh migrated PostgreSQL database returned catalogVersion null and empty support through the live HTTP server.",
+      "World-sized bbox returned HTTP 400; bounded nearby catalog returned HTTP 200.",
+      "Malformed websocket JSON returned an error and a subsequent subscription returned honest unavailable.",
+      "Redis stop left healthz at HTTP 200 and changed readyz to HTTP 503; restart restored readyz HTTP 200.",
+      "Orca iOS and Android apps queried the running Compose API and displayed unsupported coverage rather than fabricated signals.",
+      "Synthetic verified fixture test injection exercised initial full snapshot, expiry and invalidation; it is not an operational publication path."
     ]
   },
   "notClosedReasons": [
-    "SA-07 depends on SA-05 operational national collection and SA-06 verified real catalog; both are still blocked by upstream evidence/runtime gaps.",
-    "Routes currently use in-memory stores for contract verification; Redis/PostgreSQL runtime cannot be verified while Docker daemon is unavailable.",
-    "No live provider signal stream is enabled."
+    "No operational provider feed or approved road/stop-line geometry exists; default signal availability remains false."
   ]
 }

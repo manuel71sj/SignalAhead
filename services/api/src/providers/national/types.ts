@@ -20,22 +20,26 @@ export type NationalObservation = {
   sourceIntersectionId: string;
   sourceEventId: string | null;
   sourceObservedAtUtcMs: number | null;
-  sourceTimeKind: "unknown";
+  sourceTimeKind: "unknown" | "generated" | "transmitted";
   serverReceivedAtUtcMs: number;
   serverSentAtUtcMs: number;
   remainingAtSourceMs: number | null;
   expiresAtUtcMs: number | null;
-  timingQuality: "unverified";
+  timingQuality: "unverified" | "verified";
   unitEvidence: {
     sourceField: string;
-    sourceUnit: "unknown";
+    sourceUnit: "unknown" | "ms" | "centisecond" | "second";
     conversion: string;
     evidence: string;
   };
   rawStateCode: string | null;
+};
+
+export type NationalDiagnostic = {
+  approachKey: string;
   sourceDirectionCode: NationalDirectionCode;
   rawRemainingValue: string | null;
-  disabledForPrediction: true;
+  rawTotDt: string | null;
   disabledReason: "UNVERIFIED_UNIT" | "UNKNOWN_SIGNAL" | "EMPTY_DIRECTION";
 };
 
@@ -44,6 +48,7 @@ export type NationalParseStatus = "ok" | "empty" | "auth_error" | "rate_limited"
 export type NationalParseResult = {
   status: NationalParseStatus;
   observations: NationalObservation[];
+  diagnostics?: NationalDiagnostic[];
   errorCode?: string;
   safeMessage?: string;
 };

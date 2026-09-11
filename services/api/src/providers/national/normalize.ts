@@ -1,5 +1,6 @@
 import {
   NATIONAL_PROVIDER,
+  type NationalDiagnostic,
   type NationalDirectionCode,
   type NationalObservation,
   type NationalParseResult,
@@ -91,41 +92,27 @@ function normalizeState(rawState: string | null): NormalizedSignalState {
   return CODE_TO_STATE[rawState] ?? "unknown";
 }
 
-function parseRemaining(raw: string | null): number | null {
-  if (raw === null) {
-    return null;
-  }
-  if (!/^\d+$/u.test(raw)) {
-    return null;
-  }
-  return Number.parseInt(raw, 10);
-}
 
-function disabledReason(state: NormalizedSignalState, rawRemaining: string | null): NationalObservation["disabledReason"] {
+function disabledReason(state: NormalizedSignalState, rawRemaining: string | null): NationalDiagnostic["disabledReason"] {
   if (state === "unknown") {
     return rawRemaining === null ? "EMPTY_DIRECTION" : "UNKNOWN_SIGNAL";
   }
   return "UNVERIFIED_UNIT";
 }
 
-function normalizeItem(item: Record<string, unknown>, receivedAtUtcMs: number, sentAtUtcMs: number): NationalObservation[] {
+function normalizeItem(item: Record<string, unknown>, receivedAtUtcMs: number, sentAtUtcMs: number): Array<{ observation: NationalObservation; diagnostic: NationalDiagnostic }> {
   const stdgCd = safeString(item.stdgCd);
   const crsrdId = safeString(item.crsrdId);
-  const sourceIntersectionId = stdgCd !== null && crsrdId !== null ? `${stdgCd}:${crsrdId}` : null;
-  if (sourceIntersectionId === null) {
-    return [];
-  }
-
-  return (Object.entries(DIRECTION_FIELDS) as Array<[NationalDirectionCode, { remaining: string; state: string }]>).map(
-    ([direction, fields]) => {
-      const rawState = safeString(item[fields.state]);
-      const rawRemaining = safeString(item[fields.remaining]);
-      const signalState = normalizeState(rawState);
-      const remainingAtSourceMs = parseRemaining(rawRemaining);
-      const intersectionKey = `${NATIONAL_PROVIDER}:${sourceIntersectionId}`;
-      const approachKey = `${intersectionKey}:straight:${direction}`;
-
-      return {
+  if (stdgCd === null || crsrdId === null) return [];
+  const sourceIntersectionId = `${stdgCd}:${crsrdId}`;
+  const intersectionKey = `${NATIONAL_PROVIDER}:${sourceIntersectionId}`;
+  return (Object.entries(DIRECTION_FIELDS) as Array<[NationalDirectionCode, { remaining: string; state: string }]>).map(([direction, fields]) => {
+    const rawState = safeString(item[fields.state]);
+    const rawRemaining = safeString(item[fields.remaining]);
+    const signalState = normalizeState(rawState);
+    const approachKey = `${intersectionKey}:straight:${direction}`;
+    return {
+      observation: {
         schemaVersion: "sa-contract-1",
         kind: "SignalObservation",
         provider: NATIONAL_PROVIDER,
@@ -134,30 +121,33 @@ function normalizeItem(item: Record<string, unknown>, receivedAtUtcMs: number, s
         movement: "straight",
         signalState,
         catalogVersion: "unverified-national-live",
-        sourceRevision: safeString(item.totDt) ?? "unknown",
+        sourceRevision: "unknown",
         sourceIntersectionId,
-        sourceEventId: safeString(item.totDt),
+        sourceEventId: null,
         sourceObservedAtUtcMs: null,
         sourceTimeKind: "unknown",
         serverReceivedAtUtcMs: receivedAtUtcMs,
         serverSentAtUtcMs: sentAtUtcMs,
-        remainingAtSourceMs,
+        remainingAtSourceMs: null,
         expiresAtUtcMs: null,
         timingQuality: "unverified",
         unitEvidence: {
           sourceField: fields.remaining,
           sourceUnit: "unknown",
-          conversion: "not converted; SA-01 left national remaining-time unit unverified",
+          conversion: "not converted; source remaining-time unit is unverified",
           evidence: "docs/validation/providers/sa-01.json"
         },
-        rawStateCode: rawState,
+        rawStateCode: rawState
+      },
+      diagnostic: {
+        approachKey,
         sourceDirectionCode: direction,
         rawRemainingValue: rawRemaining,
-        disabledForPrediction: true,
+        rawTotDt: safeString(item.totDt),
         disabledReason: disabledReason(signalState, rawRemaining)
-      } satisfies NationalObservation;
-    }
-  );
+      }
+    };
+  });
 }
 
 export function normalizeNationalTlDrctPayload(
@@ -184,8 +174,10 @@ export function normalizeNationalTlDrctPayload(
     return providerStatus("provider_error", code, safeProviderMessage(envelope));
   }
 
+  const normalized = bodyItems(envelope).flatMap((item) => normalizeItem(item, receivedAtUtcMs, sentAtUtcMs));
   return {
     status: "ok",
-    observations: bodyItems(envelope).flatMap((item) => normalizeItem(item, receivedAtUtcMs, sentAtUtcMs))
+    observations: normalized.map((item) => item.observation),
+    diagnostics: normalized.map((item) => item.diagnostic)
   };
 }

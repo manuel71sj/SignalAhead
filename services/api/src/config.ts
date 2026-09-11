@@ -22,11 +22,11 @@ function optionalValue(env: NodeJS.ProcessEnv, key: string): string | null {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
   const missingRequired = REQUIRED_ENV.filter((key) => optionalValue(env, key) === null);
   const missingProviderKeys = PROVIDER_ENV.filter((key) => optionalValue(env, key) === null);
-  const rawPort = optionalValue(env, "PORT");
-  const port = rawPort === null ? 3000 : Number.parseInt(rawPort, 10);
+  const rawPort = env.PORT === undefined ? null : env.PORT.trim();
+  const port = rawPort === null ? 3000 : Number(rawPort);
 
-  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    throw new Error(`PORT must be an integer TCP port, got ${rawPort}`);
+  if ((rawPort !== null && !/^[0-9]+$/u.test(rawPort)) || !Number.isInteger(port) || port <= 0 || port > 65535) {
+    throw new Error("PORT must be an integer TCP port between 1 and 65535");
   }
 
   return {

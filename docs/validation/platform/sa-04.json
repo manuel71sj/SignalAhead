@@ -1,6 +1,6 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/5",
-  "status": "partial-development-baseline-blocked-on-local-flutter-and-docker-runtime",
+  "status": "ios-android-and-compose-runtime-verified",
   "artifacts": {
     "rootPackage": "package.json",
     "apiService": "services/api/",
@@ -9,24 +9,33 @@
     "ci": ".github/workflows/ci.yml",
     "envExample": ".env.example"
   },
-  "implemented": [
-    "Root npm workspace for TypeScript API only.",
-    "Fastify API with GET /healthz for process liveness and GET /readyz for database/cache readiness.",
-    "Readiness reports missing DATABASE_URL and REDIS_URL distinctly from unavailable dependencies.",
-    "Provider keys are server-only configuration and missing keys are reported without sample-signal fallback.",
-    "Compose defines PostgreSQL/PostGIS, Redis, and API service with persistent database volume and non-persistent Redis appendonly mode.",
-    "Flutter source package defines a pre-drive first screen that states location permission is not requested before driving start."
-  ],
-  "verification": {
-    "apiTypecheck": "npm run check:api => pass",
-    "apiTests": "npm run test:api => 4 tests passed",
-    "apiSmoke": "PORT=3080 npm --workspace services/api run dev; /healthz => 200 {ok:true}; /readyz without DATABASE_URL/REDIS_URL => 503 missing_config for database and redis",
-    "composeAttempt": "docker compose up -d postgres redis failed because local Docker daemon socket /Users/manuel71/.colima/default/docker.sock was not running",
-    "flutterAttempt": "flutter --version failed with command not found; local iOS/Android simulator execution and flutter test were not possible in this workstation"
+  "versions": {
+    "flutter": "3.47.3 stable",
+    "dart": "3.13.3",
+    "composeAndCiNode": "22.23.2",
+    "hostNodeAlsoVerified": "26.7.0",
+    "python": "3.13.13",
+    "xcode": "26.6 (17F113)",
+    "iosSimulator": "26.5",
+    "androidBuildSdk": "36.0.0",
+    "androidEmulator": "Pixel_6_Pro_API_34"
   },
-  "notClosedReasons": [
-    "SA-04 requires iOS simulator and Android emulator execution of the same app; Flutter SDK is absent locally.",
-    "SA-04 requires Compose-connected readiness verification; Docker daemon is absent locally.",
-    "CI is configured to perform Flutter analyze/test once GitHub Actions runs with Flutter installed."
-  ]
+  "verification": {
+    "mobile": "flutter analyze: no issues; flutter test: 37 passed; iOS simulator, Android debug APK and standard web builds succeeded.",
+    "nativeInteraction": "Both apps installed/launched and exercised through Orca emulator: start, actual system permission dialog, GPS sample delivery, pause/resume and stop. Initial launch did not request location.",
+    "api": "npm run check:api and npm run build:api passed. 37 tests passed with real isolated PostgreSQL transaction tests, both on host and inside pinned Node 22.23.2 Compose container.",
+    "compose": "docker compose up -d --wait: PostgreSQL, Redis and API healthy. Migration executed before API startup.",
+    "dependencyFailure": "Redis stopped: /healthz HTTP 200 and /readyz HTTP 503 redis unavailable; Redis restarted: /readyz HTTP 200.",
+    "withoutProviderKeys": "Compose /readyz reports all three missing provider keys while database and Redis remain ready. Bounded catalog returns empty support; websocket returns CATALOG_UNAVAILABLE rather than sample signals.",
+    "python": "Provider probe 10, spatial audit 11 and contract checker 5 tests passed. Golden replay validated with 8 scenarios and 4 negative cases.",
+    "ci": "Workflow pins Flutter/Node/Python, installs geographiclib, exercises PostgreSQL transactions, shared mobile tests, Android/web and iOS simulator builds. Remote workflow result is tracked separately; local success is not a claim of remote success."
+  },
+  "run": {
+    "backend": "docker compose up -d --wait",
+    "health": "http://127.0.0.1:3000/readyz",
+    "ios": "cd apps/mobile && flutter run -d <ios-simulator-id> --dart-define=API_BASE_URL=http://127.0.0.1:3000",
+    "android": "cd apps/mobile && flutter run -d <android-emulator-id> --dart-define=API_BASE_URL=http://10.0.2.2:3000",
+    "configuration": "API_BASE_URL is a build-time public endpoint only; provider keys never enter the mobile build. HTTP is accepted only for debug loopback/emulator hosts; production endpoints require HTTPS."
+  },
+  "productionBoundary": "Development runtime is functional. This does not approve a production signal feed, road/stop-line geometry, timing units, field calibration or release signing. No fake operational signal or countdown is provided."
 }

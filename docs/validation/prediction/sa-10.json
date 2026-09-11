@@ -1,30 +1,29 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/11",
-  "status": "prediction-core-implemented-in-typescript-mobile-dart-runtime-blocked",
+  "status": "pure-dart-engine-and-monotonic-deadline-verified",
   "artifacts": {
-    "engine": "services/api/src/prediction/evaluatePrediction.ts",
-    "tests": "services/api/test/prediction/evaluatePrediction.test.ts",
-    "mobilePathMarker": "apps/mobile/lib/prediction/prediction_contract_note.dart"
+    "mobileEngine": "apps/mobile/lib/prediction/prediction.dart",
+    "mobileDeadline": "apps/mobile/lib/prediction/signal_deadline.dart",
+    "mobileTests": "apps/mobile/test/prediction/"
   },
   "implemented": [
-    "Pure deterministic evaluator with injected input/policy and no global clock reads.",
-    "Computes arrival interval from distance and speed ranges using milliseconds.",
-    "Applies reason priority for inactive session, policy, stale/unverified signal, invalid location, ambiguous target, non-green signal, slow/stopped and interval overlap.",
-    "Uses strict less-than for possible so equality/overlap is not optimistic.",
-    "Rejects null/NaN/negative/zero-speed/stale/unverified cases as unknown."
+    "Deterministic pure Dart evaluator with injected input/policy and canonical JSON results; obsolete marker file removed.",
+    "Conservative floor/ceil arrival intervals, strict possible/ unlikely boundaries, stopped-speed and stop-line uncertainty handling.",
+    "Missing or unapproved policy, stale/unverified signals and malformed sensor inputs fail closed with canonical reason priority.",
+    "Monotonic deadlines deduct source age once, expire at strict TTL/phase boundaries, retain high-water time on rollback, and cannot be reset by duplicate or unproven-order source events.",
+    "Synthetic policy is explicitly separate and cannot authorize ordinary operational input."
   ],
   "verification": {
-    "apiTypecheck": "npm run check:api => pass",
-    "apiTests": "npm run test:api => 22 tests passed",
+    "sdk": "Flutter 3.47.3 / Dart 3.13.3",
+    "analyze": "flutter analyze: no issues",
+    "tests": "flutter test: all 37 mobile tests passed, including prediction and deadline scenarios",
     "scenarios": [
-      "[13,17]s arrival vs [20,26]s green => possible",
-      "[22,26]s arrival vs [12,18]s green => unlikely",
-      "[13,20]s arrival vs [20,26]s green => unknown",
-      "unverified timing, unapproved policy, non-green states, zero speed, NaN distance, negative remaining and stale signal never return possible"
+      "[13,17]s arrival versus [20,26]s green: possible",
+      "[22,26]s arrival versus [12,18]s green: unlikely",
+      "[13,20]s touching [20,26]s: unknown",
+      "TTL equality, expired source age, rollback, duplicate and unverified newer events cannot revive stale signal timing",
+      "Zero speed, nonfinite input, stop-line overlap, missing policy and unverified timing do not produce possible"
     ]
   },
-  "notClosedReasons": [
-    "SA-10 explicitly asks for apps/mobile/lib/prediction pure Dart evaluatePrediction; Flutter/Dart SDK is unavailable locally, so the verified executable implementation is TypeScript only.",
-    "SA-04 remains open for mobile runtime/toolchain verification."
-  ]
+  "productionBoundary": "Engine verification does not approve live provider timing, geometry or operational policy. Ordinary mobile driving currently withholds countdown/predictions because these external evidence gates are unmet."
 }

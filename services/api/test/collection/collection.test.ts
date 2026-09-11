@@ -30,11 +30,7 @@ function observation(sourceEventId: string, remainingAtSourceMs: number): Nation
       conversion: "not converted",
       evidence: "test"
     },
-    rawStateCode: "protected-Movement-Allowed",
-    sourceDirectionCode: "nt",
-    rawRemainingValue: String(remainingAtSourceMs),
-    disabledForPrediction: true,
-    disabledReason: "UNVERIFIED_UNIT"
+    rawStateCode: "protected-Movement-Allowed"
   };
 }
 
@@ -61,23 +57,24 @@ describe("national collection controls", () => {
     expect(retryDelayMs(1, 120_000)).toBe(60_000);
   });
 
-  test("does not extend cached event expiry on duplicates and ignores older events", () => {
+  test("opaque unverified IDs never establish lexical ordering or extend expiry", () => {
     const cache = new SignalEventCache();
     const eventA = observation("20260910185819", 21);
-    const duplicateA = observation("20260910185819", 21);
-    const olderB = observation("20260910185818", 999);
-    const newC = observation("20260910185820", 5);
-
     expect(cache.apply(eventA, 100)).toBe("inserted");
-    const firstExpiry = cache.get(eventA.approachKey)?.expiresAtUtcMs;
+    expect(cache.apply({ ...eventA, serverReceivedAtUtcMs: 200 }, 200)).toBe("duplicate");
+    expect(cache.get(eventA.approachKey)?.expiresAtUtcMs).toBe(eventA.expiresAtUtcMs);
+    const opaqueB = observation("20260910185818", 999);
+    expect(cache.apply(opaqueB, 300)).toBe("unknown_order");
+    expect(cache.get(eventA.approachKey)?.observation).toMatchObject({ sourceEventId: opaqueB.sourceEventId, timingQuality: "unverified", remainingAtSourceMs: null, expiresAtUtcMs: null });
+  });
 
-    expect(cache.apply(duplicateA, 200)).toBe("duplicate");
-    expect(cache.get(eventA.approachKey)?.expiresAtUtcMs).toBe(firstExpiry);
-
-    expect(cache.apply(olderB, 300)).toBe("older_ignored");
-    expect(cache.get(eventA.approachKey)?.observation.sourceEventId).toBe("20260910185819");
-
-    expect(cache.apply(newC, 400)).toBe("updated");
-    expect(cache.get(eventA.approachKey)?.observation.sourceEventId).toBe("20260910185820");
+  test("only verified generation times can discard an older event", () => {
+    const cache = new SignalEventCache();
+    const initial: NationalObservation = { ...observation("opaque-z", 1000), timingQuality: "verified", sourceTimeKind: "generated", sourceObservedAtUtcMs: 100 };
+    cache.apply(initial, 100);
+    expect(cache.apply({ ...initial, sourceEventId: "opaque-zz", sourceObservedAtUtcMs: 99 }, 101)).toBe("older_ignored");
+    expect(cache.get(initial.approachKey)?.observation.sourceObservedAtUtcMs).toBe(100);
+    expect(cache.apply({ ...initial, sourceEventId: "opaque-a", sourceObservedAtUtcMs: 101 }, 102)).toBe("updated");
+    expect(cache.get(initial.approachKey)?.observation.sourceEventId).toBe("opaque-a");
   });
 });

@@ -1,28 +1,34 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/9",
-  "status": "mobile-session-state-source-added-flutter-runtime-blocked",
+  "status": "foreground-location-lifecycle-verified-on-ios-and-android-emulators",
   "artifacts": {
-    "stateMachine": "apps/mobile/lib/drive_session/drive_session_state.dart",
+    "controller": "apps/mobile/lib/drive_session/drive_session_state.dart",
+    "platformLocation": "apps/mobile/lib/location/location_gateway.dart",
     "locationSample": "apps/mobile/lib/location/location_sample.dart",
-    "androidManifest": "apps/mobile/android/app/src/main/AndroidManifest.xml",
-    "iosPlist": "apps/mobile/ios/Runner/Info.plist",
+    "screen": "apps/mobile/lib/main.dart",
+    "catalogClient": "apps/mobile/lib/signals/catalog_client.dart",
     "tests": "apps/mobile/test/drive_session/drive_session_state_test.dart"
   },
   "implemented": [
-    "Foreground-only drive session state machine: idle, requestingPermission, acquiringLocation, driving, paused and stopped.",
-    "Location stream is inactive before explicit StartDriving, while requesting permission, after pause, after stop and after permission revocation.",
-    "Permission blockers distinguish denied, denied forever, precise location off, service off and stale last-known location.",
-    "Platform invalid speed/course/accuracy sentinel values normalize to null instead of 0 or north.",
-    "Android declares only foreground coarse/fine location permissions. iOS declares When In Use location usage text only."
+    "Explicit start is required before the real geolocator permission request and position stream. No last-known location lookup or background location permission.",
+    "Pause, stop, service failure and disposal invalidate callbacks, clear location/catalog state and cancel sensor subscriptions and HTTP client.",
+    "Resume rechecks permissions before establishing a fresh session. Late permission completion cannot restart a stopped session.",
+    "The permission-dialog inactive/resume race was reproduced in the Orca iOS simulator and a failing regression test, then fixed and re-exercised successfully.",
+    "Invalid speed/course sentinels remain null. Stationary GPS course is not treated as vehicle intent.",
+    "Only a bounded nearby catalog query leaves the device. Missing geometry or unavailable server never produces a target, countdown or pass recommendation."
   ],
   "verification": {
-    "manifestSyntax": "plutil -lint apps/mobile/ios/Runner/Info.plist => OK; Python ElementTree parsed AndroidManifest.xml",
-    "apiRegression": "npm run check:api && npm run test:api => 18 tests passed",
-    "flutterAttempt": "flutter --version failed with command not found; flutter test and real iOS/Android sensor execution were not possible locally"
+    "sdk": "Flutter 3.47.3 / Dart 3.13.3",
+    "analyze": "flutter analyze: no issues",
+    "tests": "flutter test: 37 tests passed, including prediction/deadline and permission race regressions",
+    "ios": "Orca iPhone 17, iOS 26.5: fresh launch, explicit start, actual When In Use dialog, permission completion, injected simulator GPS, live speed/accuracy, offline catalog state, home/resume, stop clearing speed/accuracy.",
+    "android": "Orca Pixel_6_Pro_API_34: actual permission dialog, denial/retry, precise foreground location, injected emulator GPS, live speed/accuracy, home/resume acquiring fresh location, stop, revoked precise permission and disabled location-service guidance.",
+    "builds": "flutter build ios --simulator --debug; flutter build apk --debug; flutter build web all succeeded without bypassing icon tree shaking.",
+    "visual": "Native Android screenshot inspected; both platforms' real accessibility trees exercised through Orca. Emulator GPS injection is synthetic sensor verification, not field evidence."
   },
-  "notClosedReasons": [
-    "SA-08 requires real iOS/Android location sensor event conversion to LocationSample; Flutter SDK and simulators are unavailable locally.",
-    "No geolocator stream integration can be proven until Flutter toolchain is available.",
-    "App background/permission-revocation behavior needs device or simulator verification."
+  "remainingProductionGates": [
+    "Real road/stop-line geometry and reviewed direction mapping are absent. No production signal target subscription is enabled.",
+    "Provider timing units, source ordering and measured operational policy remain unapproved. Live countdown and crossing predictions are intentionally withheld.",
+    "Physical-device driving accuracy, power use and field signal comparison are not certified by emulator checks."
   ]
 }

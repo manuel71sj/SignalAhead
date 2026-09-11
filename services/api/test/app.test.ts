@@ -69,4 +69,7 @@ describe("health and readiness", () => {
       missingProviderKeys: ["NATIONAL_SERVICE_KEY", "SEOUL_API_KEY", "ULSAN_SERVICE_KEY"]
     });
   });
+  test.each(["3000suffix", "3e3", "1.5", "0", "65536", "-1", ""])("rejects invalid PORT %s", (port) => {
+    expect(() => loadConfig({ PORT: port })).toThrow();
+  });
 });

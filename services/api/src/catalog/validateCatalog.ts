@@ -1,77 +1,55 @@
-import type { ApproachCatalog, CatalogApproach, CatalogValidationIssue, CatalogValidationResult, SourceLedger } from "./types.js";
+import { validateCatalogShape } from "../contracts.js";
+import type { ApproachCatalog, CatalogValidationIssue, CatalogValidationResult } from "./types.js";
 
-const OPERATIONAL_MOVEMENTS = new Set(["straight"]);
+export type CatalogValidationMode = "operational" | "synthetic-verification";
 
-function rightsAllowDeviceUse(source: SourceLedger): boolean {
-  return source.rights.storage.allowed && source.rights.processing.allowed && source.rights.redistribution.allowed && source.rights.deviceMatching.allowed;
-}
-
-function coordinateIssue(coordinates: [number, number], key: string): CatalogValidationIssue | null {
-  const [longitude, latitude] = coordinates;
-  const valid = Number.isFinite(longitude) && Number.isFinite(latitude) && longitude >= -180 && longitude <= 180 && latitude > -90 && latitude < 90;
-  if (valid) {
-    return null;
+export function validateCatalogForPublication(document: unknown, mode: CatalogValidationMode = "operational"): CatalogValidationResult {
+  if (!validateCatalogShape(document)) {
+    return {
+      valid: false,
+      issues: (validateCatalogShape.errors ?? []).map((error) => ({
+        code: "INVALID_SCHEMA", key: error.instancePath, message: error.message ?? "Invalid catalog JSON"
+      }))
+    };
   }
-  return { code: "INVALID_COORDINATES", key, message: "Coordinates must be OGC:CRS84 [longitude, latitude] within valid ranges" };
-}
-
-function activeApproachIssues(approach: CatalogApproach, source: SourceLedger | undefined): CatalogValidationIssue[] {
+  const catalog = document as ApproachCatalog;
   const issues: CatalogValidationIssue[] = [];
-  if (source === undefined) {
-    issues.push({ code: "MISSING_SOURCE", key: approach.approachKey, message: `Unknown source ${approach.source}` });
-    return issues;
-  }
-  if (!rightsAllowDeviceUse(source)) {
-    issues.push({ code: "UNVERIFIED_RIGHTS", key: approach.approachKey, message: "Source rights do not allow storage, processing, redistribution and device matching" });
-  }
-  if (!approach.directionReview.verified) {
-    issues.push({ code: "UNVERIFIED_DIRECTION", key: approach.approachKey, message: "Direction review is not verified" });
-  }
-  if (!approach.geometryReview.verified) {
-    issues.push({ code: "UNVERIFIED_GEOMETRY", key: approach.approachKey, message: "Geometry/stop-line review is not verified" });
-  }
-  if (!OPERATIONAL_MOVEMENTS.has(approach.movement)) {
-    issues.push({ code: "UNSUPPORTED_MOVEMENT", key: approach.approachKey, message: "Only straight approaches may be enabled for initial operation" });
-  }
-  return issues;
-}
-
-function duplicateIssues(keys: string[], code: CatalogValidationIssue["code"], label: string): CatalogValidationIssue[] {
+  const add = (code: CatalogValidationIssue["code"], key: string, message: string) => { issues.push({ code, key, message }); };
   const seen = new Set<string>();
-  const duplicates = new Set<string>();
-  for (const key of keys) {
-    if (seen.has(key)) {
-      duplicates.add(key);
-    }
+  for (const entity of [...catalog.intersections, ...catalog.approaches]) {
+    const key = "approachKey" in entity ? entity.approachKey : entity.intersectionKey;
+    if (seen.has(key)) add("DUPLICATE_KEY", key, "Duplicate catalog key");
     seen.add(key);
   }
-  return [...duplicates].map((key) => ({ code, key, message: `Duplicate ${label} key ${key}` }));
-}
-
-export function validateCatalogForPublication(catalog: ApproachCatalog): CatalogValidationResult {
-  const issues: CatalogValidationIssue[] = [];
-  issues.push(...duplicateIssues(catalog.intersections.map((intersection) => intersection.intersectionKey), "DUPLICATE_KEY", "intersection"));
-  issues.push(...duplicateIssues(catalog.approaches.map((approach) => approach.approachKey), "DUPLICATE_KEY", "approach"));
-
-  const intersections = new Map(catalog.intersections.map((intersection) => [intersection.intersectionKey, intersection]));
+  for (const [key, source] of Object.entries(catalog.sources)) {
+    if (source.sourceId !== key) add("INVALID_SOURCE_IDENTITY", key, "Source ledger key must match sourceId");
+    if (source.crs !== "OGC:CRS84") add("INVALID_COORDINATES", key, "Only verified OGC:CRS84 coordinates are supported");
+    if (mode === "operational" && source.origin === "synthetic") add("SYNTHETIC_SOURCE", key, "Synthetic sources cannot be published operationally");
+    if (mode === "synthetic-verification" && source.origin !== "synthetic") add("SYNTHETIC_SOURCE", key, "Verification mode accepts only synthetic sources");
+  }
+  const intersections = new Map(catalog.intersections.map((item) => [item.intersectionKey, item]));
   for (const intersection of catalog.intersections) {
-    const issue = coordinateIssue(intersection.coordinates, intersection.intersectionKey);
-    if (issue !== null) {
-      issues.push(issue);
-    }
-    if (catalog.sources[intersection.source] === undefined) {
-      issues.push({ code: "MISSING_SOURCE", key: intersection.intersectionKey, message: `Unknown source ${intersection.source}` });
-    }
+    if (!Object.hasOwn(catalog.sources, intersection.source)) add("MISSING_SOURCE", intersection.intersectionKey, "Unknown intersection source");
+    if (intersection.intersectionKey !== `${intersection.provider}:${intersection.sourceIntersectionId}`) add("INVALID_SOURCE_IDENTITY", intersection.intersectionKey, "Intersection key must preserve complete provider identity");
   }
-
   for (const approach of catalog.approaches) {
-    if (!intersections.has(approach.intersectionKey)) {
-      issues.push({ code: "MISSING_INTERSECTION", key: approach.approachKey, message: `Unknown intersection ${approach.intersectionKey}` });
+    const intersection = intersections.get(approach.intersectionKey);
+    const source = Object.hasOwn(catalog.sources, approach.source) ? catalog.sources[approach.source] : undefined;
+    if (intersection === undefined) add("MISSING_INTERSECTION", approach.approachKey, "Unknown approach intersection");
+    if (source === undefined) add("MISSING_SOURCE", approach.approachKey, "Unknown approach source");
+    if (!approach.enabledForOperation) continue;
+    const intersectionSource = intersection !== undefined && Object.hasOwn(catalog.sources, intersection.source) ? catalog.sources[intersection.source] : undefined;
+    for (const ledger of [source, intersectionSource]) {
+      if (ledger !== undefined && Object.values(ledger.rights).some((right) => !right.allowed || right.evidence.trim().length === 0)) {
+        add("UNVERIFIED_RIGHTS", approach.approachKey, "All source rights require affirmative documented permission");
+      }
     }
-    if (approach.enabledForOperation) {
-      issues.push(...activeApproachIssues(approach, catalog.sources[approach.source]));
-    }
+    if (!approach.directionReview.verified || !approach.directionReview.evidence.trim()) add("UNVERIFIED_DIRECTION", approach.approachKey, "Direction review is unverified");
+    if (!approach.geometryReview.verified || !approach.geometryReview.evidence.trim() || approach.roadLinkId === null || approach.stopLineId === null || approach.level === null) add("UNVERIFIED_GEOMETRY", approach.approachKey, "Reviewed road link, stop line and level are required");
+    if (approach.movement !== "straight") add("UNSUPPORTED_MOVEMENT", approach.approachKey, "Only straight movement is supported");
+    // This contract carries identifiers, not geometry. Review booleans cannot supply a
+    // directed road polyline and crossing stop line to the device matcher.
+    if (mode === "operational") add("UNSUPPORTED_GEOMETRY", approach.approachKey, "Operational geometry resolution is unavailable; publish this approach disabled");
   }
-
   return { valid: issues.length === 0, issues };
 }

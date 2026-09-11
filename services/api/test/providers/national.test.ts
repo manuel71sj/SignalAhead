@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 import { normalizeNationalTlDrctPayload } from "../../src/providers/national/normalize.js";
+import { validateSignalShape } from "../../src/contracts.js";
 
 function fixture(path: string): unknown {
   return JSON.parse(readFileSync(resolve(process.cwd(), "../..", path), "utf8"));
@@ -14,7 +15,7 @@ describe("national signal normalization", () => {
 
     expect(result.status).toBe("ok");
     expect(result.observations).toHaveLength(8);
-    const northThrough = result.observations.find((observation) => observation.sourceDirectionCode === "nt");
+    const northThrough = result.observations.find((observation) => observation.approachKey.endsWith(":nt"));
 
     expect(northThrough).toMatchObject({
       provider: "national",
@@ -22,14 +23,17 @@ describe("national signal normalization", () => {
       approachKey: "national:1100000000:1850:straight:nt",
       sourceIntersectionId: "1100000000:1850",
       signalState: "green",
-      remainingAtSourceMs: 21,
+      remainingAtSourceMs: null,
+      expiresAtUtcMs: null,
+      sourceEventId: null,
+      sourceRevision: "unknown",
       sourceObservedAtUtcMs: null,
       sourceTimeKind: "unknown",
-      timingQuality: "unverified",
-      disabledForPrediction: true,
-      disabledReason: "UNVERIFIED_UNIT"
+      timingQuality: "unverified"
     });
     expect(northThrough?.unitEvidence).toMatchObject({ sourceUnit: "unknown" });
+    expect(result.diagnostics?.find((item) => item.sourceDirectionCode === "nt")).toMatchObject({ rawRemainingValue: "21", disabledReason: "UNVERIFIED_UNIT" });
+    expect(result.observations.every((observation) => validateSignalShape(observation))).toBe(true);
   });
 
   test("treats K3 and K03 as empty rather than fatal provider errors", () => {
