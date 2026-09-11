@@ -1,0 +1,33 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/8",
+  "status": "route-and-stream-contract-implemented-with-in-memory-fixtures",
+  "artifacts": {
+    "catalogRoute": "services/api/src/routes/catalog.ts",
+    "signalsRoute": "services/api/src/routes/signals.ts",
+    "streamRoute": "services/api/src/routes/stream.ts",
+    "streamProtocol": "services/api/src/realtime/protocol.ts",
+    "tests": "services/api/test/routes/routes.test.ts"
+  },
+  "implemented": [
+    "GET /v1/catalog validates bounded CRS84 bbox and returns catalogVersion with supported intersections/approaches or an empty list.",
+    "GET /v1/signals returns explicit unavailable reasons for unknown targets, unsupported movements, expired signals and catalog mismatch.",
+    "WebSocket /v1/stream accepts subscribe/unsubscribe messages and emits snapshot/unavailable/error messages with requestId, streamEpoch and monotonic sequence.",
+    "Each StreamProtocol instance generates a fresh epoch so reconnect after server restart is distinguishable from old delayed messages.",
+    "Stream message size and per-connection subscription count are bounded."
+  ],
+  "verification": {
+    "apiTypecheck": "npm run check:api => pass",
+    "apiTests": "npm run test:api => 18 tests passed",
+    "scenarios": [
+      "Invalid bbox returns 400; empty supported area returns 200 with empty catalog lists.",
+      "Golden catalog bbox returns supported approaches only.",
+      "Unknown approachKey and catalogVersion mismatch return unavailable instead of fake signals.",
+      "Reconnect starts at sequence 1 with a new streamEpoch and full snapshot."
+    ]
+  },
+  "notClosedReasons": [
+    "SA-07 depends on SA-05 operational national collection and SA-06 verified real catalog; both are still blocked by upstream evidence/runtime gaps.",
+    "Routes currently use in-memory stores for contract verification; Redis/PostgreSQL runtime cannot be verified while Docker daemon is unavailable.",
+    "No live provider signal stream is enabled."
+  ]
+}

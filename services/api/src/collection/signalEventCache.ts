@@ -32,6 +32,10 @@ export class SignalEventCache {
     return this.#signals.get(key);
   }
 
+  values(): CachedSignal[] {
+    return [...this.#signals.values()];
+  }
+
   apply(observation: NationalObservation, nowUtcMs: number): CacheApplyResult {
     const current = this.#signals.get(observation.approachKey);
     const nextFingerprint = fingerprint(observation);
