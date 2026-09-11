@@ -1,0 +1,34 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/7",
+  "status": "synthetic-catalog-publication-controls-implemented-real-pilot-blocked",
+  "artifacts": {
+    "catalogTypes": "services/api/src/catalog/types.ts",
+    "validator": "services/api/src/catalog/validateCatalog.ts",
+    "store": "services/api/src/catalog/catalogStore.ts",
+    "migration": "services/api/migrations/0001_catalog.sql",
+    "importCli": "tools/catalog-import/validate-catalog.ts",
+    "tests": "services/api/test/catalog/catalog.test.ts"
+  },
+  "implemented": [
+    "Catalog publication validator rejects invalid CRS84 coordinates, missing sources, missing intersections, unverified rights, unverified direction, unverified geometry, unsupported active movement and duplicate keys.",
+    "CatalogStore publishes a complete catalog version atomically and does not replace the active catalog on validation failure.",
+    "Disable operation marks matching active approaches unavailable immediately and returns invalidated approach keys for SA-07 subscription invalidation.",
+    "SQL migration defines catalog version and disable event persistence shape for PostgreSQL/PostGIS deployment."
+  ],
+  "verification": {
+    "apiTypecheck": "npm run check:api => pass",
+    "apiTests": "npm run test:api => 14 tests passed",
+    "catalogCli": "npx tsx tools/catalog-import/validate-catalog.ts fixtures/replay/golden-contract.json => valid true",
+    "scenarios": [
+      "Golden synthetic catalog publishes as one atomic version.",
+      "Axis-swapped coordinates reject publication and keep previous active version.",
+      "Active approach with missing rights, direction review, geometry review or unsupported movement is rejected.",
+      "Disabling the published national intersection immediately disables the active straight approach and bumps catalog version."
+    ]
+  },
+  "notClosedReasons": [
+    "SA-06 depends on SA-02 verified real road/stop-line source data, which is still blocked.",
+    "Only synthetic catalog fixture was validated; no real pilot approach is approved.",
+    "PostgreSQL persistence cannot be smoke-tested locally while Docker daemon is unavailable from SA-04."
+  ]
+}
