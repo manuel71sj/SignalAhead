@@ -1,0 +1,68 @@
+{
+  "purpose": "Investigation-only input contract for tools/spatial-audit/audit.py. This is not the production catalog schema, a map matcher, or a license/operational approval authority.",
+  "runtime": {
+    "python": "Python 3.9+; exercised with .venv CPython 3.13.13",
+    "dependency": "geographiclib==2.1",
+    "setup": [
+      "uv venv .venv",
+      "uv pip install --python .venv/bin/python -r tools/spatial-audit/requirements.txt"
+    ],
+    "commands": [
+      ".venv/bin/python tools/spatial-audit/audit.py --input fixtures/spatial/recorded-national-centers.json",
+      ".venv/bin/python tools/spatial-audit/audit.py --input fixtures/spatial/synthetic-directed-routes.json",
+      ".venv/bin/python -m unittest discover -s tools/spatial-audit -p 'test_*.py' -v"
+    ],
+    "exitCodes": {
+      "0": "A recorded-labelled input has at least 10 distinct intersections on one internally consistent reviewed route. Does NOT authorize operation or independently authenticate review evidence.",
+      "2": "Geometry review target not met, synthetic evidence, or invalid input. A successful audit of unsupported data also exits 2. Both supplied fixtures intentionally exit 2."
+    },
+    "output": "Audit report JSON on stdout; invalid-input error JSON on stderr. Never prints the input on failure. No network calls, key loading, or source-data fetching.",
+    "privateWorkspace": ".spatial-audit/ is ignored. Keep restricted downloads, review images, account terms and locations there until redistribution rights are checked. Do not put credentials in a bundle."
+  },
+  "input": {
+    "origin": "Required: recorded or synthetic. Synthetic evidence never satisfies the real-pilot target.",
+    "crs": "OGC:CRS84 for verified WGS84 longitude/latitude geometry. unverified is accepted only for a center-only inventory with empty roads, stopLines, approaches and routes; no metric computation occurs. The tool does not establish the datum from coordinate ranges.",
+    "sources": "Required object indexed by source ID. Each source used by a road/stop line needs a nonblank evidence string and rights object. Each of storage, processing, redistribution and deviceMatching must have allowed:true and a nonblank evidence string; missing/false/null is unsupported. Store real license/version/review references, not self-invented approval. A true flag is an input assertion, not a grant by this tool.",
+    "catalog": {
+      "type": "Required array",
+      "fields": ["intersectionKey", "provider", "sourceIntersectionId", "coordinates"],
+      "identity": "Nonempty string keys; intersectionKey and the (provider, sourceIntersectionId) pair must be unique. Treat sourceIntersectionId as the complete provider identity, not a globally unique local integer. The national fixture uses stdgCd:crsrdId and retains both original fields in rawSourceIdentity. These investigation keys do not prescribe SA-03 production identifiers.",
+      "coordinates": "Exactly [longitude, latitude], finite numbers, longitude in [-180,180], latitude strictly between -90 and 90. Center coordinates cannot create a stop line, travel link, level or movement."
+    },
+    "roads": {
+      "type": "Required GeoJSON FeatureCollection of LineString Features",
+      "properties": ["roadLinkId", "fromNodeId", "toNodeId", "level", "source"],
+      "semantics": "Coordinate order is the allowed travel direction from fromNodeId to toNodeId. Shared node IDs must have identical coordinates. A known level is an integer; null/missing cannot be reviewed. source indexes the rights ledger. A route follows explicit directed links, never geometric proximity."
+    },
+    "stopLines": {
+      "type": "Required GeoJSON FeatureCollection of LineString Features",
+      "properties": ["stopLineId", "intersectionKey", "level", "source"],
+      "semantics": "A stop line must belong to the same catalog intersection, have the same known level as its approach link and cross that link at exactly one unambiguous point. Revisited, multiple or collinear crossings are unsupported. Missing lines are not approximated from the center."
+    },
+    "approaches": {
+      "type": "Required array",
+      "fields": ["approachKey", "intersectionKey", "roadLinkId", "stopLineId", "movement", "sourceDirectionCode", "directionReview", "geometryReview"],
+      "semantics": "Unique approachKey; movement must be straight. Preserve sourceDirectionCode as nt/et/st/wt/ne/se/sw/nw. Each review is an object with verified:true and nonblank evidence. The reviewer must establish whether the provider direction denotes origin, destination or another convention and record its relationship to this directed link. The tool deliberately does not guess direction from heading or mechanically rotate the provider code.",
+      "unsupported": "Missing catalog/link/stop line, unknown direction/level, grade mismatch, unavailable rights or missing reviews produces status:unsupported, reason codes and null stop-line distance."
+    },
+    "routes": {
+      "type": "Required array",
+      "fields": ["id", "roadLinkIds", "expectedApproachKeys"],
+      "semantics": "Nonempty ordered list of unique roadLinkIds; previous.toNodeId must equal next.fromNodeId. Unknown levels or level transitions are unsupported in this straight-pilot audit. The reviewer supplies expectedApproachKeys as ground truth. Derived approaches must match that exact order; approaches on nearby/opposite/parallel/upper links are not included merely because their centers are close. Distinct intersections are counted per route, not pooled across disconnected paths."
+    }
+  },
+  "geometryRules": [
+    "Normalize a real source outside the tool using the distribution's verified CRS/.prj and document the transformation. Do not assume EPSG:5179 or WGS84 from Korean-looking coordinates.",
+    "GeoJSON segments are linear in the CRS84 coordinate plane for crossing detection; lengths to each crossing use GeographicLib's WGS84 ellipsoidal inverse distances accumulated along the directed polyline, in meters. This is not a survey-grade replacement for the original geometry.",
+    "Two-dimensional coordinates only; carry reviewed road layer separately as level. At least two points per LineString; no duplicate consecutive points. Split antimeridian-crossing segments before review.",
+    "Crossings at a shared polyline vertex are deduplicated at numerical precision, not by a GPS or stop-line snapping tolerance.",
+    "distanceFromLinkStartToStopLineMeters is not distance from a live vehicle and must not be used as an arrival-time prediction."
+  ],
+  "evidenceBoundaries": [
+    "The recorded fixture is a minimal projection of five already collected national API centers. It makes no WGS84 datum assertion, performs no new API calls and establishes zero reviewed road/stop-line intersections.",
+    "The synthetic fixture covers cardinal approach identity, opposite direction on overlapping coordinates, a nearby parallel road, an overlapping upper road and two consecutive intersections. Its source/geometry/direction reviews apply only to authored counterexamples, not real provider data.",
+    "The test generating ten synthetic intersections proves that reaching the numeric target with synthetic data still does not establish a real pilot. It is not a ten-intersection real dataset.",
+    "The tool cannot verify a human review or contract reference remotely. Inspect the evidence before supplying it. No authority is inferred from SDK access, API success, an asserted origin or a review flag.",
+    "Every report keeps operationalPredictionEnabled:false. Signal time interpretation, freshness, GPS matching, lane intent, field safety and app delivery remain separate gates."
+  ]
+}

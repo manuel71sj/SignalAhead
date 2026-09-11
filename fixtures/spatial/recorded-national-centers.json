@@ -1,0 +1,84 @@
+{
+  "origin": "recorded",
+  "crs": "unverified",
+  "description": "Minimal retained national catalog projection. API longitude/latitude fields are reordered explicitly; datum has not been verified, so inventory only and no metric calculation.",
+  "provenance": {
+    "source": "https://www.data.go.kr/data/15157604/openapi.do",
+    "endpoint": "crsrd_map_info",
+    "observedAtUtcMs": 1789034284540,
+    "projection": {
+      "sourceIntersectionId": "stdgCd + ':' + crsrdId; preserve regional namespace",
+      "coordinates[0]": "mapCtptIntLot",
+      "coordinates[1]": "mapCtptIntLat"
+    },
+    "scope": "Five previously collected Seoul catalog centers; not consecutive, not signal/stop-line eligibility."
+  },
+  "sources": {},
+  "catalog": [
+    {
+      "intersectionKey": "national:1100000000:1",
+      "provider": "national",
+      "sourceIntersectionId": "1100000000:1",
+      "rawSourceIdentity": {"stdgCd": "1100000000", "crsrdId": "1"},
+      "name": "이촌역앞",
+      "coordinates": [
+        126.9713254,
+        37.5231971
+      ]
+    },
+    {
+      "intersectionKey": "national:1100000000:10",
+      "provider": "national",
+      "sourceIntersectionId": "1100000000:10",
+      "rawSourceIdentity": {"stdgCd": "1100000000", "crsrdId": "10"},
+      "name": "난곡우체국앞",
+      "coordinates": [
+        126.9153603,
+        37.4777135
+      ]
+    },
+    {
+      "intersectionKey": "national:1100000000:1007",
+      "provider": "national",
+      "sourceIntersectionId": "1100000000:1007",
+      "rawSourceIdentity": {"stdgCd": "1100000000", "crsrdId": "1007"},
+      "name": "우리은행암사",
+      "coordinates": [
+        127.1364893,
+        37.5547454
+      ]
+    },
+    {
+      "intersectionKey": "national:1100000000:101",
+      "provider": "national",
+      "sourceIntersectionId": "1100000000:101",
+      "rawSourceIdentity": {"stdgCd": "1100000000", "crsrdId": "101"},
+      "name": "수서역",
+      "coordinates": [
+        127.101742,
+        37.4873221
+      ]
+    },
+    {
+      "intersectionKey": "national:1100000000:1014",
+      "provider": "national",
+      "sourceIntersectionId": "1100000000:1014",
+      "rawSourceIdentity": {"stdgCd": "1100000000", "crsrdId": "1014"},
+      "name": "선사사거리",
+      "coordinates": [
+        127.1291998,
+        37.5547665
+      ]
+    }
+  ],
+  "roads": {
+    "type": "FeatureCollection",
+    "features": []
+  },
+  "stopLines": {
+    "type": "FeatureCollection",
+    "features": []
+  },
+  "approaches": [],
+  "routes": []
+}

@@ -1,0 +1,166 @@
+{
+  "issue": 3,
+  "kind": "spatial-investigation-not-production-acceptance",
+  "additionalProviderApiCalls": 0,
+  "retainedSignalIdentityCount": 8,
+  "retainedCatalogSignalIdentityOverlapCount": 0,
+  "overlapScope": "Only retained samples; zero does not mean the full national catalog and signal service have no overlap.",
+  "verifiedRealPilotIntersections": 0,
+  "verification": {
+    "spatialRegressionTestsPassed": 11,
+    "providerRegressionTestsPassed": 10,
+    "ruff": "Both investigation tool directories passed",
+    "basedpyright": {
+      "errors": 0,
+      "implementationWarnings": 299,
+      "testWarnings": 97,
+      "scope": "Unannotated JSON-oriented investigation code and missing GeographicLib type stubs. Warnings were not suppressed. The initial failed implementation diagnostic request was retried successfully."
+    },
+    "issueComment": "https://github.com/manuel71sj/SignalAhead/issues/3#issuecomment-5617465685",
+    "issueBodyUnchanged": true,
+    "issueState": "OPEN"
+  },
+  "smokes": [
+    {
+      "fixture": "recorded-national-centers.json",
+      "exitCode": 2,
+      "report": {
+        "origin": "recorded",
+        "operationalPredictionEnabled": false,
+        "coordinateReferenceVerified": false,
+        "distanceModel": null,
+        "catalogIntersectionCount": 5,
+        "centerOnlyIntersections": [
+          "national:1100000000:1",
+          "national:1100000000:10",
+          "national:1100000000:1007",
+          "national:1100000000:101",
+          "national:1100000000:1014"
+        ],
+        "centerOnlyReason": "CENTER_POINT_IS_NOT_A_STOP_LINE",
+        "approaches": [],
+        "routes": [],
+        "largestReviewedContinuousRouteIntersectionCount": 0,
+        "pilotGeometryReviewTarget": 10,
+        "pilotGeometryReviewTargetMet": false,
+        "limitations": [
+          "Synthetic review evidence never establishes a real pilot.",
+          "Manual evidence references must be independently checked; this tool cannot grant licenses.",
+          "Road travel follows fromNodeId to toNodeId and coordinate order; no nearest-intersection inference.",
+          "This audit does not verify signal time, driving behavior, lane intent, or field safety."
+        ]
+      }
+    },
+    {
+      "fixture": "synthetic-directed-routes.json",
+      "exitCode": 2,
+      "report": {
+        "origin": "synthetic",
+        "operationalPredictionEnabled": false,
+        "coordinateReferenceVerified": true,
+        "distanceModel": "WGS84 ellipsoidal geodesic; meters",
+        "catalogIntersectionCount": 2,
+        "centerOnlyIntersections": [],
+        "centerOnlyReason": null,
+        "approaches": [
+          {
+            "approachKey": "west-approach",
+            "intersectionKey": "i1",
+            "roadLinkId": "west",
+            "status": "review_candidate",
+            "reasons": [],
+            "distanceFromLinkStartToStopLineMeters": 71.20933738182892
+          },
+          {
+            "approachKey": "eastward-approach",
+            "intersectionKey": "i2",
+            "roadLinkId": "eastward",
+            "status": "review_candidate",
+            "reasons": [],
+            "distanceFromLinkStartToStopLineMeters": 71.20933738182892
+          },
+          {
+            "approachKey": "north-approach",
+            "intersectionKey": "i1",
+            "roadLinkId": "north",
+            "status": "review_candidate",
+            "reasons": [],
+            "distanceFromLinkStartToStopLineMeters": 88.78212278247044
+          },
+          {
+            "approachKey": "east-approach",
+            "intersectionKey": "i1",
+            "roadLinkId": "east",
+            "status": "review_candidate",
+            "reasons": [],
+            "distanceFromLinkStartToStopLineMeters": 71.20933738182892
+          },
+          {
+            "approachKey": "south-approach",
+            "intersectionKey": "i1",
+            "roadLinkId": "south",
+            "status": "review_candidate",
+            "reasons": [],
+            "distanceFromLinkStartToStopLineMeters": 88.7821047898937
+          }
+        ],
+        "routes": [
+          {
+            "id": "consecutive-straight",
+            "reasons": [],
+            "derivedApproachKeys": [
+              "west-approach",
+              "eastward-approach"
+            ],
+            "reviewedIntersectionCount": 2
+          },
+          {
+            "id": "opposite-direction",
+            "reasons": [],
+            "derivedApproachKeys": [
+              "east-approach"
+            ],
+            "reviewedIntersectionCount": 1
+          },
+          {
+            "id": "north-entry",
+            "reasons": [],
+            "derivedApproachKeys": [
+              "north-approach"
+            ],
+            "reviewedIntersectionCount": 1
+          },
+          {
+            "id": "south-entry",
+            "reasons": [],
+            "derivedApproachKeys": [
+              "south-approach"
+            ],
+            "reviewedIntersectionCount": 1
+          },
+          {
+            "id": "parallel-not-main",
+            "reasons": [],
+            "derivedApproachKeys": [],
+            "reviewedIntersectionCount": 0
+          },
+          {
+            "id": "overpass-not-ground",
+            "reasons": [],
+            "derivedApproachKeys": [],
+            "reviewedIntersectionCount": 0
+          }
+        ],
+        "largestReviewedContinuousRouteIntersectionCount": 2,
+        "pilotGeometryReviewTarget": 10,
+        "pilotGeometryReviewTargetMet": false,
+        "limitations": [
+          "Synthetic review evidence never establishes a real pilot.",
+          "Manual evidence references must be independently checked; this tool cannot grant licenses.",
+          "Road travel follows fromNodeId to toNodeId and coordinate order; no nearest-intersection inference.",
+          "This audit does not verify signal time, driving behavior, lane intent, or field safety."
+        ]
+      }
+    }
+  ]
+}

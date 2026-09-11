@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://signalahead.local/contracts/catalog.schema.json",
+  "title": "SignalAhead verified intersection and approach catalog contract",
+  "description": "신호 원본 ID, 도로 링크, 정지선, 방향 검토를 연결하는 앱 내부 카탈로그 계약이다. 실제 원천 권리·좌표계·현장 검토를 대체하지 않는다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "catalogVersion", "sources", "intersections", "approaches", "disabledRegions"],
+  "properties": {
+    "schemaVersion": {"const": "sa-contract-1"},
+    "kind": {"const": "ApproachCatalog"},
+    "catalogVersion": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/sourceLedger"}
+    },
+    "intersections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/intersection"}
+    },
+    "approaches": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/approach"}
+    },
+    "disabledRegions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/disabledRegion"}
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "pattern": "^[a-z][a-z0-9._-]{0,63}$"},
+    "movement": {"enum": ["straight", "left", "uturn", "bus", "bicycle", "pedestrian"]},
+    "directionCode": {"enum": ["nt", "et", "st", "wt", "ne", "se", "sw", "nw"]},
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage", "processing", "redistribution", "deviceMatching"],
+      "properties": {
+        "storage": {"$ref": "#/$defs/rightDecision"},
+        "processing": {"$ref": "#/$defs/rightDecision"},
+        "redistribution": {"$ref": "#/$defs/rightDecision"},
+        "deviceMatching": {"$ref": "#/$defs/rightDecision"}
+      }
+    },
+    "rightDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "evidence"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "evidence": {"type": "string", "minLength": 1}
+      }
+    },
+    "sourceLedger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "provider", "revision", "origin", "crs", "rights"],
+      "properties": {
+        "sourceId": {"$ref": "#/$defs/nonEmptyString"},
+        "provider": {"$ref": "#/$defs/provider"},
+        "revision": {"$ref": "#/$defs/nonEmptyString"},
+        "origin": {"enum": ["synthetic", "recorded"]},
+        "crs": {"$ref": "#/$defs/nonEmptyString"},
+        "rights": {"$ref": "#/$defs/rights"},
+        "evidence": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "intersection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intersectionKey", "provider", "sourceIntersectionId", "rawSourceIdentity", "name", "coordinates", "source"],
+      "properties": {
+        "intersectionKey": {"$ref": "#/$defs/nonEmptyString", "description": "Provider-scoped stable app key. Same sourceIntersectionId from another provider must produce another intersectionKey."},
+        "provider": {"$ref": "#/$defs/provider"},
+        "sourceIntersectionId": {"$ref": "#/$defs/nonEmptyString", "description": "Complete provider identity; national records preserve stdgCd + ':' + crsrdId."},
+        "rawSourceIdentity": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean", "null"]}},
+        "name": {"$ref": "#/$defs/nonEmptyString"},
+        "coordinates": {
+          "type": "array",
+          "prefixItems": [
+            {"type": "number", "minimum": -180, "maximum": 180},
+            {"type": "number", "exclusiveMinimum": -90, "exclusiveMaximum": 90}
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "CRS84 longitude, latitude only after source CRS verification."
+        },
+        "source": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "approach": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approachKey",
+        "intersectionKey",
+        "movement",
+        "enabledForOperation",
+        "roadLinkId",
+        "stopLineId",
+        "level",
+        "sourceDirectionCode",
+        "directionReview",
+        "geometryReview",
+        "source"
+      ],
+      "properties": {
+        "approachKey": {"$ref": "#/$defs/nonEmptyString"},
+        "intersectionKey": {"$ref": "#/$defs/nonEmptyString"},
+        "movement": {"$ref": "#/$defs/movement"},
+        "enabledForOperation": {"type": "boolean", "description": "Initial operation may enable only reviewed straight approaches."},
+        "roadLinkId": {"type": ["string", "null"], "minLength": 1},
+        "stopLineId": {"type": ["string", "null"], "minLength": 1},
+        "level": {"type": ["integer", "null"]},
+        "sourceDirectionCode": {"$ref": "#/$defs/directionCode"},
+        "directionReview": {"$ref": "#/$defs/review"},
+        "geometryReview": {"$ref": "#/$defs/review"},
+        "source": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verified", "evidence"],
+      "properties": {
+        "verified": {"type": "boolean"},
+        "evidence": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "disabledRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regionKey", "reason", "effectiveFromCatalogVersion"],
+      "properties": {
+        "regionKey": {"$ref": "#/$defs/nonEmptyString"},
+        "reason": {"enum": ["RIGHTS_UNVERIFIED", "GEOMETRY_UNVERIFIED", "SIGNAL_UNAVAILABLE", "POLICY_DISABLED"]},
+        "effectiveFromCatalogVersion": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    }
+  }
+}

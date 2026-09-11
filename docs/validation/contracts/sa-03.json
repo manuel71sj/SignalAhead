@@ -1,0 +1,51 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/4",
+  "status": "contract-and-golden-fixture-defined-no-runtime-integration",
+  "checkedAtUtc": "2026-09-11T01:10:00Z",
+  "scope": "Defines shared SignalAhead internal contracts and synthetic replay fixtures for server/Flutter implementation. This is not a live provider adapter, production policy approval, or real-road pilot validation.",
+  "artifacts": {
+    "signalSchema": "contracts/signal.schema.json",
+    "catalogSchema": "contracts/catalog.schema.json",
+    "replaySchema": "contracts/replay.schema.json",
+    "goldenReplayFixture": "fixtures/replay/golden-contract.json",
+    "validator": "tools/contract-check/validate_replay.py",
+    "validatorTests": "tools/contract-check/test_validate_replay.py"
+  },
+  "contractDecisions": {
+    "identity": "Provider-scoped intersectionKey is required. National sourceIntersectionId preserves stdgCd + ':' + crsrdId; raw crsrdId alone is rejected for national data.",
+    "movement": "Allowed movements are straight, left, uturn, bus, bicycle, pedestrian. Initial operational enablement is limited to reviewed straight approaches.",
+    "signalState": "Allowed signal states are green, yellow, red, flashing, unknown. Unknown is never treated as green.",
+    "time": "UTC times and durations are integer milliseconds. 0 is valid and distinct from null. Negative values and sentinel encodings are rejected.",
+    "location": "LocationSample keeps nullable speed/course values. Missing speed/course must not be converted to 0 or north.",
+    "prediction": "PredictionResult separates status from signal freshness/color and uses reason codes including TIMING_UNVERIFIED, SIGNAL_NOT_GREEN, LOCATION_INVALID, TARGET_AMBIGUOUS and POLICY_UNCALIBRATED.",
+    "policy": "PredictionPolicy is versioned and must be approvedForOperation before possible predictions are accepted. Synthetic policy is separate from product defaults."
+  },
+  "goldenFixtureCoverage": [
+    "verified straight green possible case",
+    "remainingAtSourceMs=0 treated as exhausted interval, not null",
+    "remainingAtSourceMs=null stays TIMING_UNVERIFIED",
+    "signalState=unknown cannot pass as green",
+    "sourceTimeKind=unknown cannot start a fresh source countdown",
+    "unapproved policy yields POLICY_UNCALIBRATED",
+    "invalid horizontal accuracy yields LOCATION_INVALID",
+    "same local source ID from another provider yields TARGET_AMBIGUOUS for national target",
+    "negative time and missing unit evidence are rejection cases"
+  ],
+  "verification": {
+    "jsonTool": "contracts and golden replay fixture parsed with .venv/bin/python -m json.tool",
+    "validator": ".venv/bin/python tools/contract-check/validate_replay.py --input fixtures/replay/golden-contract.json => status ok, 8 scenarios, 4 negative cases",
+    "unitTests": ".venv/bin/python -m unittest discover -s tools/contract-check -p 'test_*.py' -v => 5 tests OK",
+    "typeErrors": "basedpyright --level error tools/contract-check => 0 errors",
+    "regressionScope": [
+      "provider probe tests: 10 OK",
+      "spatial audit tests: 11 OK"
+    ],
+    "secretScan": "Configured credential/token pattern scan found no matches in contracts, fixtures/replay or tools/contract-check."
+  },
+  "boundaries": [
+    "No Flutter or server runtime exists in this repository yet, so shared use is represented by one checked-in golden fixture and a runtime-independent validator.",
+    "Synthetic fixtures do not satisfy SA-02 real pilot geometry requirements.",
+    "Provider timing units still require provider-profile evidence before live operation.",
+    "Product default prediction policy remains unapproved until measured field evidence is supplied."
+  ]
+}

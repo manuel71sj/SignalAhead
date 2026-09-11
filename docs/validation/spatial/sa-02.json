@@ -1,0 +1,411 @@
+{
+  "issue": "https://github.com/manuel71sj/SignalAhead/issues/3",
+  "status": "investigation-delivered-real-pilot-blocked",
+  "checkedAtUtc": "2026-09-10T10:46:09.894881+00:00",
+  "scope": "지도 표시 SDK, 경로 API, 원천 도로 그래프, 정지선 자료를 분리 평가. 조사 도구이며 SA-03 운영 카탈로그/앱 매칭 구현이 아니다.",
+  "sources": {
+    "national": "https://www.data.go.kr/data/15157604/openapi.do",
+    "kakaoMaps": "https://developers.kakao.com/docs/ko/kakaomap/common",
+    "kakaoRoutes": "https://developers.kakaomobility.com/guide/navi-api/directions",
+    "kakaoPrice": "https://developers.kakaomobility.com/price/",
+    "naverMaps": "https://www.ncloud.com/api-cms/service-product/static/maps",
+    "naverRoutes": "https://api.ncloud-docs.com/docs/application-maps-directions5",
+    "naverTerms": "https://xv-ncloud.pstatic.net/images/provision/%5B%EB%AF%BC%EA%B0%84%5DMaps%EC%84%9C%EB%B9%84%EC%8A%A4%EC%9D%B4%EC%9A%A9%EC%95%BD%EA%B4%80_v0.4_%28CLEAN%29_1742433558704.pdf",
+    "its": "https://www.data.go.kr/data/15025526/fileData.do",
+    "ngii": "https://www.data.go.kr/data/15059912/fileData.do",
+    "ngiiPortal": "https://map.ngii.go.kr/ms/map/NlipMap.do?tabGb=hdmap",
+    "kogl1": "https://www.kogl.or.kr/info/licenseType1.do"
+  },
+  "sourceMatrix": [
+    {
+      "id": "kakao-map-display",
+      "role": "지도 표시만",
+      "sources": [
+        "kakaoMaps"
+      ],
+      "koreaCoverage": "한국 지도 서비스; 파일럿 도로별 현장 확인 없음",
+      "directionalLinks": "표시 SDK에서 추출 가능한 방향성 원천 그래프로 간주하지 않음",
+      "gradeLevels": "시각적 지도 표현을 매칭용 층위로 간주하지 않음",
+      "stopLines": "검증된 정지선 데이터 제공 근거 없음",
+      "platformsDocumented": [
+        "Web JavaScript",
+        "Android",
+        "iOS"
+      ],
+      "flutter": "지도 SDK 공식 제공표에 없음. Flutter 카카오 로그인/앱투앱 내비 SDK와 구분.",
+      "costQuota": {
+        "firstEnabledAppOnlyFreeQuota": true,
+        "numericRate": null,
+        "accountEntitlementVerified": false,
+        "note": "2026-07-21 사용 방법 변경 안내. 지도 SDK 요금은 길찾기 API의 일 10000건/8원과 별개."
+      },
+      "rights": {
+        "offlineStorage": "unverified",
+        "processing": "unverified beyond permitted display",
+        "redistribution": "unverified",
+        "deviceMatching": "unverified"
+      },
+      "adopted": false
+    },
+    {
+      "id": "naver-map-display",
+      "role": "지도 표시만",
+      "sources": [
+        "naverMaps",
+        "naverTerms"
+      ],
+      "koreaCoverage": "국내 지도 서비스; 파일럿 도로별 현장 확인 없음",
+      "directionalLinks": "벡터 지도 표시 권한은 원천 도로 그래프 추출 권한이 아님",
+      "gradeLevels": "지도 표현을 층위 데이터로 사용하지 않음",
+      "stopLines": "검증된 정지선 데이터 없음",
+      "platformsDocumented": [
+        "Web JavaScript",
+        "Android",
+        "iOS"
+      ],
+      "flutter": "공식 제공 방식 표에 없음; 별도 브리지/패키지 검토 필요",
+      "costQuota": {
+        "service": "Maps, not legacy AI NAVER API",
+        "dynamicMapFreeRequestsPerMonth": 6000000,
+        "restriction": "대표 계정 1개",
+        "overageRate": null,
+        "overageReason": "읽은 공식 정적 요금표에서 초과 단가는 대시로 표시됨; 계정/계산기 확인 필요",
+        "accountEntitlementVerified": false
+      },
+      "rights": {
+        "offlineStorage": "prohibited for API results under article 7(11)",
+        "processing": "only within authorized scope; article 7(9)",
+        "redistribution": "not granted beyond authorized scope; article 7(9)",
+        "deviceMatching": "no permission to build/reuse an offline API-result database"
+      },
+      "adopted": false
+    },
+    {
+      "id": "kakao-directions",
+      "role": "실시간 경로 조회",
+      "sources": [
+        "kakaoRoutes",
+        "kakaoPrice"
+      ],
+      "koreaCoverage": "국내 자동차 길찾기; 표본 경로를 호출하지 않음",
+      "directionalLinks": "sections.roads.vertexes와 guides.road_index는 경로 내 순서/인덱스; 영속적인 from/to 노드 그래프 공급 근거가 아님",
+      "gradeLevels": "안내 정보를 독립된 도로 층위 그래프로 변환하지 않음",
+      "stopLines": "읽은 응답 명세에 정지선 좌표 없음",
+      "platformsDocumented": [
+        "HTTPS REST API"
+      ],
+      "costQuota": {
+        "automobileDirectionsPublishedDailyRequests": 10000,
+        "krwPerOverageRequest": 8,
+        "overageMonthlyBandUpperRequests": 1000000,
+        "note": "무료 쿼터 초과 요청 구간 가격; 앱 공통 월간 정책과 실제 계정 잔여량/RPS 별도 확인",
+        "accountEntitlementVerified": false
+      },
+      "rights": {
+        "offlineStorage": "unverified",
+        "processing": "unverified for a derived offline road graph",
+        "redistribution": "unverified",
+        "deviceMatching": "unverified"
+      },
+      "adopted": false
+    },
+    {
+      "id": "naver-directions",
+      "role": "실시간 경로 조회",
+      "sources": [
+        "naverRoutes",
+        "naverMaps",
+        "naverTerms"
+      ],
+      "koreaCoverage": "국내 자동차 경로; 실시간 교통 반영으로 같은 요청도 동일 경로 보장 없음",
+      "directionalLinks": "path 좌표와 section/guide 인덱스; 영속적 방향성 원천 링크 그래프가 아님",
+      "gradeLevels": "guide.type 55 고가/56 지하 등은 분기점 안내 코드이지 링크별 검증된 층위가 아님",
+      "stopLines": "응답 명세에 정지선 좌표 없음",
+      "platformsDocumented": [
+        "HTTPS REST API"
+      ],
+      "costQuota": {
+        "service": "Maps, not legacy AI NAVER API",
+        "directions5FreeRequestsPerMonth": 60000,
+        "directions15FreeRequestsPerMonth": 3000,
+        "restriction": "대표 계정 1개; 일일 무료량으로 해석하지 않음",
+        "overageRate": null,
+        "accountEntitlementVerified": false
+      },
+      "rights": {
+        "offlineStorage": "prohibited; article 7(11)",
+        "processing": "only within authorized scope; article 7(9)",
+        "redistribution": "not granted for a derived offline dataset; article 7(9)",
+        "deviceMatching": "offline API-result database reuse prohibited; no separate contract obtained"
+      },
+      "adopted": false
+    },
+    {
+      "id": "its-standard-node-link",
+      "role": "도로망 연결 조사 후보",
+      "sources": [
+        "its"
+      ],
+      "koreaCoverage": "2026-08-12 ITS NODELINKDATA.zip을 확보해 MOCT_NODE/MOCT_LINK 전국 SHP를 확인했다. 보관한 서울 중심점 5개는 모두 가장 가까운 표준링크가 약 0.2~5.7m 범위에 있었다.",
+      "directionalLinks": "MOCT_LINK.dbf에 LINK_ID, F_NODE, T_NODE 필드가 있어 방향성 링크 후보로 사용할 수 있다. TURNINFO.dbf에는 NODE_ID, ST_LINK, ED_LINK, TURN_TYPE, TURN_OPER가 있다.",
+      "gradeLevels": "MOCT_LINK.dbf의 CONNECT, MULTI_LINK 등 연결/중용 필드는 있으나 입체교차 층위(level)로 바로 채택하지 않는다. 코드표/구축기준 해석이 필요하다.",
+      "stopLines": "표준노드링크 배포본에는 정지선 SHP가 없었다. 표준링크 근접성만으로 정지선을 만들지 않으며, 정지선은 NGII 등 별도 원천으로 보강해야 한다.",
+      "platformsDocumented": [
+        "SHP; GIS ingestion required, not a mobile SDK"
+      ],
+      "costQuota": {
+        "portalFee": "무료",
+        "unit": "건",
+        "downloadLimit": null
+      },
+      "rights": {
+        "offlineStorage": "portal metadata: 이용허락범위 제한 없음; check selected distribution",
+        "processing": "same unrestricted portal label",
+        "redistribution": "same unrestricted portal label",
+        "deviceMatching": "no separate device-matching grant identified; verify selected distribution conditions"
+      },
+      "acquisition": "ITS 본 사이트는 read 도구에서 인증서 체인 검증 실패가 있었지만 Chromium 브라우저에서는 정상 접근됐다. https://www.its.go.kr/nodelink/nodelinkRef 에서 [2026-08-12]NODELINKDATA.zip(269,611,477 bytes)을 .spatial-audit/its/에 다운로드했고, private inspection summary를 생성했다.",
+      "adopted": false
+    },
+    {
+      "id": "ngii-hd-road-map",
+      "role": "도로/정지선 원천 우선 조사 후보",
+      "sources": [
+        "ngii",
+        "ngiiPortal",
+        "kogl1"
+      ],
+      "koreaCoverage": "고속/일반/주요도로 검색 제공. 실제 10개 연속 서울 교차로와 중첩되는 타일은 아직 선정/다운로드하지 않음.",
+      "directionalLinks": "차로중심선 제공 명시; 실제 링크 방향/연결 속성은 배포본 검증 필요",
+      "gradeLevels": "3차원 고정밀 지도; 터널/교량/지하차도 제공 명시. 실제 층위·연결 해석은 배포본 검증 필요.",
+      "stopLines": "공식 설명에 정지선 명시; 실제 정지선 지오메트리와 분류 코드/스키마 버전은 미확보",
+      "platformsDocumented": [
+        "GIS vector/point-cloud download, not a mobile SDK"
+      ],
+      "costQuota": {
+        "portalFee": "무료",
+        "unit": "건",
+        "downloadLimit": null
+      },
+      "rights": {
+        "offlineStorage": "KOGL type 1 permits online/offline use and sharing, conditional on attribution and the selected file being covered",
+        "processing": "KOGL type 1 permits derivative works under its conditions",
+        "redistribution": "KOGL type 1 permits online/offline sharing with attribution; preserve origin and avoid endorsement claims",
+        "deviceMatching": "general use/derivation is permitted by KOGL type 1; selected-file access terms and application scope still require review"
+      },
+      "acquisition": "공식 포털 안내에 다운로드 로그인 필수 및 대용량 파일전송 S/W 필요 명시. 2026-09-10 Orca 내장 브라우저 인증 세션에서 /mn/loginCheck.do isLogin:true를 확인하고 2025 주요도로 자율주행시범운행지구_강남(Y25R200) 노선별 다운로드 신청 양식까지 열었으나, 생년월일/기관명/부서명/사용목적/세부목적 및 준수사항 동의가 필수라 실제 제출·다운로드는 진행하지 않음.",
+      "adopted": false
+    },
+    {
+      "id": "national-intersection-centers",
+      "role": "신호 공급원 ID 대조용 중심점",
+      "sources": [
+        "national"
+      ],
+      "koreaCoverage": "보관한 서울 중심점 5개만 검사; 전국 카탈로그 전체 커버리지 아님",
+      "directionalLinks": "없음",
+      "gradeLevels": "없음",
+      "stopLines": "없음; 중심점을 정지선으로 대체하지 않음",
+      "platformsDocumented": [
+        "HTTPS REST API"
+      ],
+      "costQuota": {
+        "portalFee": "무료",
+        "accountDailyRequestsPerEndpoint": 5000,
+        "sourceEvidence": "../providers/sa-01.json",
+        "additionalCallsInThisInvestigation": 0
+      },
+      "rights": {
+        "offlineStorage": "portal: 이용허락범위 제한 없음; minimal sanitized investigation projection only",
+        "processing": "same metadata; no road geometry inferred",
+        "redistribution": "production redistribution review remains separate",
+        "deviceMatching": "center points are geometrically insufficient regardless of data-use rights"
+      },
+      "adopted": false
+    }
+  ],
+  "followUp": {
+    "checkedAtUtc": "2026-09-10T23:39:50Z",
+    "purpose": "SA-02 continuation probe of public acquisition paths only; no new provider API calls, no authenticated NGII download and no real pilot approval.",
+    "dataGoMetadata": {
+      "ngii": {
+        "title": "국토교통부 국토지리정보원_정밀도로지도_20250430",
+        "detailPk": "uddi:aecc6c9b-451d-4910-829a-ab7b71d1d947",
+        "updatedAt": "2025-06-23",
+        "extension": "SHP",
+        "license": "공공저작물 : 출처표시 (제 1유형)",
+        "linkedUrl": "https://map.ngii.go.kr/ms/map/NlipMap.do?tabGb=total",
+        "downloadNote": "공공데이터포털 상세 HTML은 국토정보맵 좌측메뉴(정밀도로지도)에서 고속/일반/주요도로 또는 벡터데이터를 검색하고 다운로드 버튼을 클릭하며, 다운로드에는 로그인이 필요하다고 명시한다."
+      },
+      "its": {
+        "title": "국토교통부_표준노드링크_20210713",
+        "detailPk": "uddi:07fc7168-47e1-4eb5-b991-977cd97923c2_201907190932",
+        "updatedAt": "2025-06-24",
+        "extension": "SHP",
+        "license": "이용허락범위 제한 없음",
+        "linkedUrl": "https://www.its.go.kr/nodelink/nodelinkRef",
+        "readLimit": "공공데이터포털 메타데이터는 읽혔지만 its.go.kr 본 사이트와 PDF는 인증서 체인 검증 오류로 직접 확인하지 않았다."
+      }
+    },
+    "ngiiPortalScriptObservations": {
+      "status": "web-display-and-search-clues-only",
+      "crsInViewer": "Portal JavaScript registers EPSG:5179 for the HD map viewer.",
+      "visibleLayerClues": [
+        "v_hdm2025_a2_link",
+        "v_hdm2025_b2_surfacelinemark",
+        "v_hdm2025_c1_trafficlight"
+      ],
+      "boundary": "Viewer JavaScript names and code maps are not accepted as the selected downloadable distribution's .prj, schema, layer code specification or license record. Do not hardcode them into the audit contract before inspecting the authenticated SHP bundle."
+    },
+    "orcaBrowserObservation": {
+      "status": "authenticated-request-form-blocked-missing-required-user-application-fields",
+      "observedTabs": [
+        "https://map.ngii.go.kr/",
+        "https://map.ngii.go.kr/ms/map/NlipMap.do?tabGb=total",
+        "https://www.data.go.kr/data/15059912/fileData.do"
+      ],
+      "visibleSessionState": "The NGII map origin returned /mn/loginCheck.do isLogin:true and the visible page exposed logged-in navigation controls.",
+      "publicSearchEndpoints": {
+        "roadCounts": {
+          "고속도로": 23,
+          "국도": 440,
+          "주요도로": 267
+        },
+        "routeCandidate": {
+          "searchType": "주요도로",
+          "roadName": "자율주행시범운행지구_강남",
+          "year": "2025",
+          "rdId7": "Y25R200",
+          "dataKeyProbe": "20251Y25R200"
+        },
+        "downloadGate": "The portal JavaScript checks /mn/loginCheck.do before /ms/pblictn/preciseRoadMapRequest.do?dataGubun=19 and opened the authenticated road-download request form when isLogin:true."
+      },
+      "requestFormBlocker": {
+        "title": "정밀도로지도 노선별 다운로드",
+        "requiredFieldsObserved": [
+          "생년월일",
+          "기관(기업)명",
+          "부서명",
+          "사용목적",
+          "세부목적",
+          "준수사항 동의"
+        ],
+        "actionNotTaken": "No required personal/organization fields were invented and no terms/requirements were accepted on the user's behalf."
+      },
+      "boundary": "No SHP/DBF/SHX/PRJ bundle was downloaded or inspected in this step. The authenticated form reachability only proves the next acquisition gate, not overlap with national signal intersections, usable stop-line geometry, CRS/schema, or operational approval."
+    },
+    "deferDecision": {
+      "status": "ngii-authenticated-download-deferred",
+      "reason": "The NGII form requires user personal/organization fields and explicit compliance consent. This investigation will not invent those fields or accept terms on the user's behalf.",
+      "alternatePath": "Proceed first with a public/unrestricted topology-first route: inspect the ITS standard node-link SHP distribution if obtainable through public download, preserve stdgCd + crsrdId as the national signal identity, and treat NGII HD map stop-line/CRS/schema validation as a later gated enrichment after a user-submitted download.",
+      "nonGoals": [
+        "Do not use display SDK tiles or route API responses as an offline source graph.",
+        "Do not hardcode NGII viewer-layer clues as downloaded SHP schema.",
+        "Do not mark the real pilot route approved without real geometry/rights validation."
+      ]
+    },
+    "itsAlternateProbe": {
+      "status": "downloaded-and-structurally-inspected",
+      "sourcePage": "https://www.its.go.kr/nodelink/nodelinkRef",
+      "downloadUrl": "https://www.its.go.kr/opendata/nodelinkFileSDownload/DF_219/0",
+      "file": "[2026-08-12]NODELINKDATA.zip",
+      "downloadedBytes": 269611477,
+      "privateInspectionSummary": ".spatial-audit/its/inspection-summary.json",
+      "members": {
+        "node": [
+          "MOCT_NODE.shp",
+          "MOCT_NODE.shx",
+          "MOCT_NODE.dbf",
+          "MOCT_NODE.prj",
+          "MOCT_NODE.cpg"
+        ],
+        "link": [
+          "MOCT_LINK.shp",
+          "MOCT_LINK.shx",
+          "MOCT_LINK.dbf",
+          "MOCT_LINK.prj",
+          "MOCT_LINK.cpg"
+        ],
+        "tables": [
+          "TURNINFO.dbf",
+          "MULTILINK.dbf",
+          "내역서.csv"
+        ]
+      },
+      "encoding": "CP949, from .cpg value 949",
+      "projection": "ITRF2000_Central_Belt_60; Transverse_Mercator; GRS_1980; false easting 200000; false northing 600000; central meridian 127; latitude of origin 38; meters",
+      "counts": {
+        "MOCT_LINK.records": 1557364,
+        "MOCT_NODE.records": 1180035,
+        "TURNINFO.records": 44125,
+        "MULTILINK.records": 19587
+      },
+      "directionalTopologyFields": {
+        "MOCT_LINK": [
+          "LINK_ID",
+          "F_NODE",
+          "T_NODE",
+          "ROAD_RANK",
+          "ROAD_TYPE",
+          "ROAD_NO",
+          "ROAD_NAME",
+          "MULTI_LINK",
+          "CONNECT",
+          "MAX_SPD",
+          "LENGTH"
+        ],
+        "TURNINFO": [
+          "NODE_ID",
+          "ST_LINK",
+          "ED_LINK",
+          "TURN_TYPE",
+          "TURN_OPER"
+        ]
+      },
+      "nearestRecordedCenterLinkDistancesMeters": {
+        "1100000000:1": 5.68,
+        "1100000000:10": 3.36,
+        "1100000000:1007": 5.12,
+        "1100000000:101": 0.19,
+        "1100000000:1014": 4.16
+      },
+      "boundary": "This proves a usable topology candidate and overlap with the retained center points only. It does not provide stop-line geometry, reviewed direction-code semantics, link level, or real pilot approval."
+    }
+  },
+  "decision": {
+    "approvedPilotSourceCombination": null,
+    "nextGeometryCandidate": "우선 NGII 인증 다운로드는 보류. 공개/비제한 접근이 가능한 ITS 표준노드링크 SHP를 먼저 확보해 방향성 도로망 후보를 검사하고, 전국 API의 stdgCd + crsrdId 신호 ID는 그대로 보존한다. NGII 정밀도로지도 정지선/CRS/스키마 검증은 사용자가 직접 제출한 다운로드 이후 보강한다.",
+    "displaySdkDecision": "보류. SDK를 선택해도 정지선·원천 그래프 권리가 따라오지 않음.",
+    "rejectedShortcut": "NAVER Directions 결과를 저장/DB화해서 오프라인 도로 그래프로 재사용하지 않음. 카카오도 사용 권한 미확인 상태에서 동일 방식으로 대체하지 않음."
+  },
+  "pilot": {
+    "requiredMinimumRealIntersections": 10,
+    "targetRange": [
+      10,
+      20
+    ],
+    "retainedCatalogCenters": 5,
+    "retainedSignalIdentities": 8,
+    "retainedCatalogSignalOverlap": 0,
+    "reviewedRealRoadApproachStopLineIntersections": 0,
+    "realPilotTargetMet": false,
+    "selectedContinuousRealRoute": null,
+    "caveat": "보관 표본끼리 중첩 0. 전체 공급원의 중첩 불가/전국 커버리지 부족을 증명하지 않음. 합성 2개 연속 교차로 및 테스트의 합성 10개는 실제 확보 수에 포함하지 않음."
+  },
+  "blockers": [
+    "NGII 로그인 다운로드로 얻은 대상 원천 벡터 파일, 배포 버전, .prj/좌표계 설명, 레이어 코드 명세, 다운로드 이용조건/출처표시 근거가 필요하다.",
+    "검증 전에는 B2_SURFACELINEMARK/Kind=530 등의 온라인 예시나 EPSG:5179를 실제 공급원 스키마/CRS로 하드코딩하지 않는다.",
+    "전국 API stdgCd + crsrdId와 실제 진입 링크/정지선/8방향 코드의 교차로별 검토 근거가 필요하다. 크기가 작은 현재 표본은 연속 구간이 아니다.",
+    "현장/허용된 근거에 의한 반대 차도, 평행도로, 고가·하부, 연속 직진 경로 검증이 필요하다. 이 도구의 합성 검증으로 대체하지 않는다.",
+    "SA-01 잔여시간 단위·방향 의미·기준시각/지연·현장 안전 게이트도 미완료이며 SA-02 도구로 해제하지 않는다."
+  ],
+  "artifacts": {
+    "tool": "tools/spatial-audit/audit.py",
+    "dependency": "tools/spatial-audit/requirements.txt",
+    "usage": "docs/validation/spatial/audit-contract.json",
+    "observations": "docs/validation/spatial/observations.json",
+    "recordedFixture": "fixtures/spatial/recorded-national-centers.json",
+    "syntheticFixture": "fixtures/spatial/synthetic-directed-routes.json"
+  },
+  "changeRecord": "SA-01 커밋 6e3d2e6 이후 추가한 독립 SA-02 조사 산출물. 원본 HTML/이미지와 SA-01 게이트는 변경하지 않음."
+}

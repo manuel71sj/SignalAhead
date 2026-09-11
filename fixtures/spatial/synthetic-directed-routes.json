@@ -1,0 +1,465 @@
+{
+  "origin": "synthetic",
+  "crs": "OGC:CRS84",
+  "description": "Authored geometric counterexamples; not surveyed roads, provider samples, or a real pilot. No nearest-road matching is implemented.",
+  "sources": {
+    "synthetic": {
+      "evidence": "Geometry authored solely for this fixture; coordinates do not represent actual roads.",
+      "rights": {
+        "storage": {
+          "allowed": true,
+          "evidence": "Applies only to this authored synthetic fixture, never to provider data."
+        },
+        "processing": {
+          "allowed": true,
+          "evidence": "Applies only to this authored synthetic fixture, never to provider data."
+        },
+        "redistribution": {
+          "allowed": true,
+          "evidence": "Applies only to this authored synthetic fixture, never to provider data."
+        },
+        "deviceMatching": {
+          "allowed": true,
+          "evidence": "Applies only to this authored synthetic fixture, never to provider data."
+        }
+      }
+    }
+  },
+  "catalog": [
+    {
+      "intersectionKey": "i1",
+      "provider": "synthetic",
+      "sourceIntersectionId": "i1",
+      "coordinates": [
+        127,
+        37
+      ]
+    },
+    {
+      "intersectionKey": "i2",
+      "provider": "synthetic",
+      "sourceIntersectionId": "i2",
+      "coordinates": [
+        127.001,
+        37
+      ]
+    }
+  ],
+  "roads": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "west",
+          "fromNodeId": "w",
+          "toNodeId": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.999,
+              37
+            ],
+            [
+              127,
+              37
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "eastward",
+          "fromNodeId": "i1",
+          "toNodeId": "i2",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127,
+              37
+            ],
+            [
+              127.001,
+              37
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "north",
+          "fromNodeId": "n",
+          "toNodeId": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127,
+              37.001
+            ],
+            [
+              127,
+              37
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "east",
+          "fromNodeId": "i2",
+          "toNodeId": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127.001,
+              37
+            ],
+            [
+              127,
+              37
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "south",
+          "fromNodeId": "s",
+          "toNodeId": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127,
+              36.999
+            ],
+            [
+              127,
+              37
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "parallel",
+          "fromNodeId": "p0",
+          "toNodeId": "p1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.999,
+              37.0003
+            ],
+            [
+              127,
+              37.0003
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "roadLinkId": "upper",
+          "fromNodeId": "u0",
+          "toNodeId": "u1",
+          "level": 1
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.999,
+              37
+            ],
+            [
+              127,
+              37
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "stopLines": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "stopLineId": "west-stop",
+          "intersectionKey": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.9998,
+              36.9999
+            ],
+            [
+              126.9998,
+              37.0001
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "stopLineId": "next-stop",
+          "intersectionKey": "i2",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127.0008,
+              36.9999
+            ],
+            [
+              127.0008,
+              37.0001
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "stopLineId": "north-stop",
+          "intersectionKey": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.9999,
+              37.0002
+            ],
+            [
+              127.0001,
+              37.0002
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "stopLineId": "east-stop",
+          "intersectionKey": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              127.0002,
+              36.9999
+            ],
+            [
+              127.0002,
+              37.0001
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source": "synthetic",
+          "stopLineId": "south-stop",
+          "intersectionKey": "i1",
+          "level": 0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              126.9999,
+              36.9998
+            ],
+            [
+              127.0001,
+              36.9998
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "approaches": [
+    {
+      "approachKey": "west-approach",
+      "intersectionKey": "i1",
+      "roadLinkId": "west",
+      "stopLineId": "west-stop",
+      "movement": "straight",
+      "sourceDirectionCode": "wt",
+      "directionReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      },
+      "geometryReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      }
+    },
+    {
+      "approachKey": "eastward-approach",
+      "intersectionKey": "i2",
+      "roadLinkId": "eastward",
+      "stopLineId": "next-stop",
+      "movement": "straight",
+      "sourceDirectionCode": "wt",
+      "directionReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      },
+      "geometryReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      }
+    },
+    {
+      "approachKey": "north-approach",
+      "intersectionKey": "i1",
+      "roadLinkId": "north",
+      "stopLineId": "north-stop",
+      "movement": "straight",
+      "sourceDirectionCode": "nt",
+      "directionReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      },
+      "geometryReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      }
+    },
+    {
+      "approachKey": "east-approach",
+      "intersectionKey": "i1",
+      "roadLinkId": "east",
+      "stopLineId": "east-stop",
+      "movement": "straight",
+      "sourceDirectionCode": "et",
+      "directionReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      },
+      "geometryReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      }
+    },
+    {
+      "approachKey": "south-approach",
+      "intersectionKey": "i1",
+      "roadLinkId": "south",
+      "stopLineId": "south-stop",
+      "movement": "straight",
+      "sourceDirectionCode": "st",
+      "directionReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      },
+      "geometryReview": {
+        "verified": true,
+        "evidence": "Synthetic ground truth only: directed link and transverse stop line in this fixture, not a real API direction interpretation."
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "consecutive-straight",
+      "roadLinkIds": [
+        "west",
+        "eastward"
+      ],
+      "expectedApproachKeys": [
+        "west-approach",
+        "eastward-approach"
+      ]
+    },
+    {
+      "id": "opposite-direction",
+      "roadLinkIds": [
+        "east"
+      ],
+      "expectedApproachKeys": [
+        "east-approach"
+      ]
+    },
+    {
+      "id": "north-entry",
+      "roadLinkIds": [
+        "north"
+      ],
+      "expectedApproachKeys": [
+        "north-approach"
+      ]
+    },
+    {
+      "id": "south-entry",
+      "roadLinkIds": [
+        "south"
+      ],
+      "expectedApproachKeys": [
+        "south-approach"
+      ]
+    },
+    {
+      "id": "parallel-not-main",
+      "roadLinkIds": [
+        "parallel"
+      ],
+      "expectedApproachKeys": []
+    },
+    {
+      "id": "overpass-not-ground",
+      "roadLinkIds": [
+        "upper"
+      ],
+      "expectedApproachKeys": []
+    }
+  ]
+}

@@ -1,0 +1,890 @@
+{
+  "schemaVersion": "sa-contract-1",
+  "kind": "ReplayFixture",
+  "fixtureVersion": "golden-contract-v1",
+  "origin": "synthetic",
+  "catalog": {
+    "schemaVersion": "sa-contract-1",
+    "kind": "ApproachCatalog",
+    "catalogVersion": "synthetic-contract-v1",
+    "sources": {
+      "synthetic-catalog": {
+        "sourceId": "synthetic-catalog",
+        "provider": "synthetic",
+        "revision": "2026-09-11",
+        "origin": "synthetic",
+        "crs": "OGC:CRS84",
+        "rights": {
+          "storage": {
+            "allowed": true,
+            "evidence": "synthetic fixture authored for SA-03"
+          },
+          "processing": {
+            "allowed": true,
+            "evidence": "synthetic fixture authored for SA-03"
+          },
+          "redistribution": {
+            "allowed": true,
+            "evidence": "synthetic fixture authored for SA-03"
+          },
+          "deviceMatching": {
+            "allowed": true,
+            "evidence": "synthetic fixture authored for SA-03"
+          }
+        },
+        "evidence": "SA-03 golden replay fixture; no real road or account data"
+      }
+    },
+    "intersections": [
+      {
+        "intersectionKey": "national:1100000000:1",
+        "provider": "national",
+        "sourceIntersectionId": "1100000000:1",
+        "rawSourceIdentity": {
+          "stdgCd": "1100000000",
+          "crsrdId": "1"
+        },
+        "name": "synthetic national straight target",
+        "coordinates": [
+          126.9713254,
+          37.5231971
+        ],
+        "source": "synthetic-catalog"
+      },
+      {
+        "intersectionKey": "city-a:1",
+        "provider": "city-a",
+        "sourceIntersectionId": "1",
+        "rawSourceIdentity": {
+          "intersectionId": "1"
+        },
+        "name": "synthetic city A duplicate local id",
+        "coordinates": [
+          126.972,
+          37.5234
+        ],
+        "source": "synthetic-catalog"
+      },
+      {
+        "intersectionKey": "city-b:1",
+        "provider": "city-b",
+        "sourceIntersectionId": "1",
+        "rawSourceIdentity": {
+          "intersectionId": "1"
+        },
+        "name": "synthetic city B duplicate local id",
+        "coordinates": [
+          126.973,
+          37.5238
+        ],
+        "source": "synthetic-catalog"
+      }
+    ],
+    "approaches": [
+      {
+        "approachKey": "national:1100000000:1:straight:eb",
+        "intersectionKey": "national:1100000000:1",
+        "movement": "straight",
+        "enabledForOperation": true,
+        "roadLinkId": "synthetic-link-national-eb",
+        "stopLineId": "synthetic-stop-national-eb",
+        "level": 0,
+        "sourceDirectionCode": "et",
+        "directionReview": {
+          "verified": true,
+          "evidence": "synthetic sourceDirectionCode et is defined here as eastbound straight target"
+        },
+        "geometryReview": {
+          "verified": true,
+          "evidence": "synthetic stop line crosses the synthetic eastbound approach link once"
+        },
+        "source": "synthetic-catalog"
+      },
+      {
+        "approachKey": "national:1100000000:1:left:nb",
+        "intersectionKey": "national:1100000000:1",
+        "movement": "left",
+        "enabledForOperation": false,
+        "roadLinkId": "synthetic-link-national-nb",
+        "stopLineId": "synthetic-stop-national-nb",
+        "level": 0,
+        "sourceDirectionCode": "nt",
+        "directionReview": {
+          "verified": true,
+          "evidence": "synthetic left movement retained but not enabled for initial operation"
+        },
+        "geometryReview": {
+          "verified": true,
+          "evidence": "synthetic only; not used for straight operation"
+        },
+        "source": "synthetic-catalog"
+      },
+      {
+        "approachKey": "city-a:1:straight:eb",
+        "intersectionKey": "city-a:1",
+        "movement": "straight",
+        "enabledForOperation": true,
+        "roadLinkId": "synthetic-link-city-a-eb",
+        "stopLineId": "synthetic-stop-city-a-eb",
+        "level": 0,
+        "sourceDirectionCode": "et",
+        "directionReview": {
+          "verified": true,
+          "evidence": "synthetic duplicate local ID provider A"
+        },
+        "geometryReview": {
+          "verified": true,
+          "evidence": "synthetic duplicate local ID provider A"
+        },
+        "source": "synthetic-catalog"
+      },
+      {
+        "approachKey": "city-b:1:straight:eb",
+        "intersectionKey": "city-b:1",
+        "movement": "straight",
+        "enabledForOperation": true,
+        "roadLinkId": "synthetic-link-city-b-eb",
+        "stopLineId": "synthetic-stop-city-b-eb",
+        "level": 0,
+        "sourceDirectionCode": "et",
+        "directionReview": {
+          "verified": true,
+          "evidence": "synthetic duplicate local ID provider B"
+        },
+        "geometryReview": {
+          "verified": true,
+          "evidence": "synthetic duplicate local ID provider B"
+        },
+        "source": "synthetic-catalog"
+      }
+    ],
+    "disabledRegions": [
+      {
+        "regionKey": "unreviewed-region",
+        "reason": "GEOMETRY_UNVERIFIED",
+        "effectiveFromCatalogVersion": "synthetic-contract-v1"
+      }
+    ]
+  },
+  "policies": [
+    {
+      "schemaVersion": "sa-contract-1",
+      "kind": "PredictionPolicy",
+      "policyVersion": "synthetic-policy-v1",
+      "approvedForOperation": true,
+      "maxSignalAgeMs": 3000,
+      "clockSkewBudgetMs": 500,
+      "minimumSpeedMps": 1.5,
+      "maxHorizontalAccuracyM": 25,
+      "extraSafetyMarginMs": 1000,
+      "measurementEvidence": "synthetic replay policy; not an operating default"
+    },
+    {
+      "schemaVersion": "sa-contract-1",
+      "kind": "PredictionPolicy",
+      "policyVersion": "unapproved-default",
+      "approvedForOperation": false,
+      "maxSignalAgeMs": 3000,
+      "clockSkewBudgetMs": 500,
+      "minimumSpeedMps": 1.5,
+      "maxHorizontalAccuracyM": 25,
+      "extraSafetyMarginMs": 1000,
+      "measurementEvidence": "deliberately unapproved product default"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "straight-green-possible",
+      "description": "Verified straight green with calibrated synthetic policy may produce possible.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "possible",
+        "reason": "INTERVAL_OVERLAP",
+        "arrivalIntervalMs": {
+          "earliestMs": 5000,
+          "latestMs": 7000
+        },
+        "greenRemainingIntervalMs": {
+          "earliestMs": 10880,
+          "latestMs": 11880
+        },
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "remaining-zero-is-not-null",
+      "description": "remainingAtSourceMs 0 is a real exhausted interval, not an unknown value.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 0,
+            "expiresAtUtcMs": 1789035000100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unlikely",
+        "reason": "INTERVAL_OVERLAP",
+        "arrivalIntervalMs": {
+          "earliestMs": 5000,
+          "latestMs": 7000
+        },
+        "greenRemainingIntervalMs": {
+          "earliestMs": 0,
+          "latestMs": 0
+        },
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "remaining-null-unverified",
+      "description": "Null remaining time remains unknown and cannot be counted down as fresh green.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": null,
+            "expiresAtUtcMs": null,
+            "timingQuality": "unverified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "TIMING_UNVERIFIED",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "unknown-state-not-green",
+      "description": "Unknown signal state is not normal green.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "unknown",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-unknown"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "SIGNAL_NOT_GREEN",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "unknown"
+      }
+    },
+    {
+      "id": "unknown-source-time-kind",
+      "description": "sourceTimeKind unknown cannot be presented as a source-generated countdown.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": null,
+            "sourceTimeKind": "unknown",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "unverified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "TIMING_UNVERIFIED",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "policy-uncalibrated",
+      "description": "Unapproved operating policy gates prediction before a possible result.",
+      "policyVersion": "unapproved-default",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "POLICY_UNCALIBRATED",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "location-invalid",
+      "description": "Poor horizontal accuracy prevents green prediction.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "national",
+            "intersectionKey": "national:1100000000:1",
+            "approachKey": "national:1100000000:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1100000000:1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 80.0,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "LOCATION_INVALID",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "green"
+      }
+    },
+    {
+      "id": "duplicate-local-id-provider-scoped",
+      "description": "A different provider using local sourceIntersectionId 1 does not satisfy the national target approach.",
+      "policyVersion": "synthetic-policy-v1",
+      "targetApproachKey": "national:1100000000:1:straight:eb",
+      "events": [
+        {
+          "atMonotonicMs": 0,
+          "type": "session",
+          "payload": {
+            "sessionId": "session-golden-1",
+            "active": true
+          }
+        },
+        {
+          "atMonotonicMs": 100,
+          "type": "signal",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "SignalObservation",
+            "provider": "city-b",
+            "intersectionKey": "city-b:1",
+            "approachKey": "city-b:1:straight:eb",
+            "movement": "straight",
+            "signalState": "green",
+            "catalogVersion": "synthetic-contract-v1",
+            "sourceRevision": "synthetic-signal-revision-1",
+            "sourceIntersectionId": "1",
+            "sourceEventId": null,
+            "sourceObservedAtUtcMs": 1789035000000,
+            "sourceTimeKind": "generated",
+            "serverReceivedAtUtcMs": 1789035000100,
+            "serverSentAtUtcMs": 1789035000120,
+            "remainingAtSourceMs": 12000,
+            "expiresAtUtcMs": 1789035012100,
+            "timingQuality": "verified",
+            "unitEvidence": {
+              "sourceField": "ntStsgRmndCs",
+              "sourceUnit": "centisecond",
+              "conversion": "value * 10 => milliseconds",
+              "evidence": "synthetic SA-03 unit fixture"
+            },
+            "rawStateCode": "synthetic-green"
+          }
+        },
+        {
+          "atMonotonicMs": 200,
+          "type": "location",
+          "payload": {
+            "schemaVersion": "sa-contract-1",
+            "kind": "LocationSample",
+            "sessionId": "session-golden-1",
+            "latitude": 37.5231,
+            "longitude": 126.9709,
+            "horizontalAccuracyM": 6.5,
+            "speedMps": 8.0,
+            "speedAccuracyMps": 0.6,
+            "courseDeg": 90.0,
+            "courseAccuracyDeg": 4.0,
+            "measuredAtUtcMs": 1789035000200,
+            "deviceReceivedMonotonicMs": 200
+          }
+        }
+      ],
+      "expected": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "PredictionResult",
+        "status": "unknown",
+        "reason": "TARGET_AMBIGUOUS",
+        "arrivalIntervalMs": null,
+        "greenRemainingIntervalMs": null,
+        "signalStateAtDecision": "green"
+      }
+    }
+  ],
+  "negativeCases": [
+    {
+      "id": "negative-remaining-ms",
+      "description": "Negative remaining time is a rejected sentinel, not unknown.",
+      "payload": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "SignalObservation",
+        "provider": "national",
+        "intersectionKey": "national:1100000000:1",
+        "approachKey": "national:1100000000:1:straight:eb",
+        "movement": "straight",
+        "signalState": "green",
+        "catalogVersion": "synthetic-contract-v1",
+        "sourceRevision": "synthetic-signal-revision-1",
+        "sourceIntersectionId": "1100000000:1",
+        "sourceEventId": null,
+        "sourceObservedAtUtcMs": 1789035000000,
+        "sourceTimeKind": "generated",
+        "serverReceivedAtUtcMs": 1789035000100,
+        "serverSentAtUtcMs": 1789035000120,
+        "remainingAtSourceMs": -1,
+        "expiresAtUtcMs": 1789035012100,
+        "timingQuality": "verified",
+        "unitEvidence": {
+          "sourceField": "ntStsgRmndCs",
+          "sourceUnit": "centisecond",
+          "conversion": "value * 10 => milliseconds",
+          "evidence": "synthetic SA-03 unit fixture"
+        },
+        "rawStateCode": "synthetic-green"
+      },
+      "expectedError": "NEGATIVE_TIME"
+    },
+    {
+      "id": "negative-location-monotonic-ms",
+      "description": "Negative monotonic device receipt time is invalid.",
+      "payload": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "LocationSample",
+        "sessionId": "session-golden-1",
+        "latitude": 37.5231,
+        "longitude": 126.9709,
+        "horizontalAccuracyM": 6.5,
+        "speedMps": 8.0,
+        "speedAccuracyMps": 0.6,
+        "courseDeg": 90.0,
+        "courseAccuracyDeg": 4.0,
+        "measuredAtUtcMs": 1789035000200,
+        "deviceReceivedMonotonicMs": -1
+      },
+      "expectedError": "NEGATIVE_TIME"
+    },
+    {
+      "id": "missing-unit-evidence",
+      "description": "Verified timing without source unit evidence is rejected.",
+      "payload": {
+        "schemaVersion": "sa-contract-1",
+        "kind": "SignalObservation",
+        "provider": "national",
+        "intersectionKey": "national:1100000000:1",
+        "approachKey": "national:1100000000:1:straight:eb",
+        "movement": "straight",
+        "signalState": "green",
+        "catalogVersion": "synthetic-contract-v1",
+        "sourceRevision": "synthetic-signal-revision-1",
+        "sourceIntersectionId": "1100000000:1",
+        "sourceEventId": null,
+        "sourceObservedAtUtcMs": 1789035000000,
+        "sourceTimeKind": "generated",
+        "serverReceivedAtUtcMs": 1789035000100,
+        "serverSentAtUtcMs": 1789035000120,
+        "remainingAtSourceMs": 12000,
+        "expiresAtUtcMs": 1789035012100,
+        "timingQuality": "verified",
+        "rawStateCode": "synthetic-green"
+      },
+      "expectedError": "UNVERIFIED_UNIT"
+    },
+    {
+      "id": "providerless-source-intersection-id-collision",
+      "description": "Raw local ID alone cannot identify the national record.",
+      "payload": {
+        "provider": "national",
+        "sourceIntersectionId": "1",
+        "intersectionKey": "national:1"
+      },
+      "expectedError": "IDENTIFIER_COLLISION"
+    }
+  ]
+}

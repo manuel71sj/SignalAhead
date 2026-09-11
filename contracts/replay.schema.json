@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://signalahead.local/contracts/replay.schema.json",
+  "title": "SignalAhead golden replay fixture contract",
+  "description": "서버와 Flutter가 공유하는 재현 데이터 계약이다. 단조 경과시간 순 이벤트, 기대 예측 상태, 실패해야 하는 음수/센티넬 payload를 함께 보관한다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "fixtureVersion", "origin", "catalog", "policies", "scenarios", "negativeCases"],
+  "properties": {
+    "schemaVersion": {"const": "sa-contract-1"},
+    "kind": {"const": "ReplayFixture"},
+    "fixtureVersion": {"type": "string", "minLength": 1},
+    "origin": {"enum": ["synthetic", "recorded"]},
+    "catalog": {"$ref": "catalog.schema.json"},
+    "policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "signal.schema.json#/$defs/PredictionPolicy"}
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/scenario"}
+    },
+    "negativeCases": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/negativeCase"}
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["atMonotonicMs", "type", "payload"],
+      "properties": {
+        "atMonotonicMs": {"type": "integer", "minimum": 0},
+        "type": {"enum": ["session", "location", "signal", "catalog", "policy"]},
+        "payload": {"type": "object"}
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "policyVersion", "targetApproachKey", "events", "expected"],
+      "properties": {
+        "id": {"$ref": "#/$defs/nonEmptyString"},
+        "description": {"$ref": "#/$defs/nonEmptyString"},
+        "policyVersion": {"$ref": "#/$defs/nonEmptyString"},
+        "targetApproachKey": {"$ref": "#/$defs/nonEmptyString"},
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/event"},
+          "description": "Semantic validation requires nondecreasing atMonotonicMs order."
+        },
+        "expected": {"$ref": "signal.schema.json#/$defs/PredictionResult"}
+      }
+    },
+    "negativeCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "payload", "expectedError"],
+      "properties": {
+        "id": {"$ref": "#/$defs/nonEmptyString"},
+        "description": {"$ref": "#/$defs/nonEmptyString"},
+        "payload": {"type": "object"},
+        "expectedError": {"enum": ["NEGATIVE_TIME", "UNKNOWN_SENTINEL", "IDENTIFIER_COLLISION", "UNVERIFIED_UNIT"]}
+      }
+    }
+  }
+}

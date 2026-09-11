@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://signalahead.local/contracts/signal.schema.json",
+  "title": "SignalAhead signal, location and prediction contract",
+  "description": "앱 내부 계약이다. 제공자 원본 API 명세나 운영 승인서가 아니다. 모든 UTC 시각과 기간은 밀리초 정수이며, 0은 null과 다르다.",
+  "type": "object",
+  "oneOf": [
+    {"$ref": "#/$defs/SignalObservation"},
+    {"$ref": "#/$defs/LocationSample"},
+    {"$ref": "#/$defs/PredictionResult"},
+    {"$ref": "#/$defs/PredictionPolicy"}
+  ],
+  "$defs": {
+    "schemaVersion": {"const": "sa-contract-1"},
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "utcMs": {"type": "integer", "minimum": 0, "description": "Unix epoch UTC milliseconds."},
+    "durationMs": {"type": "integer", "minimum": 0, "description": "Duration in milliseconds. Use null when unavailable; do not use -1 or another sentinel."},
+    "provider": {"type": "string", "pattern": "^[a-z][a-z0-9._-]{0,63}$"},
+    "movement": {"enum": ["straight", "left", "uturn", "bus", "bicycle", "pedestrian"]},
+    "operationalMovement": {"const": "straight", "description": "Initial operational subscription gate. Other movements may be stored but must not be treated as approved straight vehicle signals."},
+    "signalState": {"enum": ["green", "yellow", "red", "flashing", "unknown"]},
+    "timeKind": {"enum": ["generated", "transmitted", "unknown"]},
+    "timingQuality": {"enum": ["verified", "unverified"]},
+    "reason": {
+      "enum": [
+        "TIMING_UNVERIFIED",
+        "SIGNAL_STALE",
+        "SIGNAL_NOT_GREEN",
+        "LOCATION_INVALID",
+        "TARGET_AMBIGUOUS",
+        "STOPPED_OR_SLOW",
+        "INTERVAL_OVERLAP",
+        "POLICY_UNCALIBRATED",
+        "SESSION_INACTIVE"
+      ]
+    },
+    "intervalMs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["earliestMs", "latestMs"],
+      "properties": {
+        "earliestMs": {"type": "integer", "minimum": 0},
+        "latestMs": {"type": "integer", "minimum": 0}
+      },
+      "description": "Closed interval in milliseconds; earliestMs must be <= latestMs by semantic validation."
+    },
+    "ProviderUnitEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceField", "sourceUnit", "conversion", "evidence"],
+      "properties": {
+        "sourceField": {"$ref": "#/$defs/nonEmptyString"},
+        "sourceUnit": {"enum": ["ms", "centisecond", "second", "unknown"]},
+        "conversion": {"$ref": "#/$defs/nonEmptyString"},
+        "evidence": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "SignalObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "provider",
+        "intersectionKey",
+        "approachKey",
+        "movement",
+        "signalState",
+        "catalogVersion",
+        "sourceRevision",
+        "sourceIntersectionId",
+        "sourceEventId",
+        "sourceObservedAtUtcMs",
+        "sourceTimeKind",
+        "serverReceivedAtUtcMs",
+        "serverSentAtUtcMs",
+        "remainingAtSourceMs",
+        "expiresAtUtcMs",
+        "timingQuality",
+        "unitEvidence"
+      ],
+      "properties": {
+        "schemaVersion": {"$ref": "#/$defs/schemaVersion"},
+        "kind": {"const": "SignalObservation"},
+        "provider": {"$ref": "#/$defs/provider"},
+        "intersectionKey": {"$ref": "#/$defs/nonEmptyString"},
+        "approachKey": {"$ref": "#/$defs/nonEmptyString"},
+        "movement": {"$ref": "#/$defs/movement"},
+        "signalState": {"$ref": "#/$defs/signalState"},
+        "catalogVersion": {"$ref": "#/$defs/nonEmptyString"},
+        "sourceRevision": {"$ref": "#/$defs/nonEmptyString"},
+        "sourceIntersectionId": {"$ref": "#/$defs/nonEmptyString", "description": "Complete provider identity; for national data preserve stdgCd + ':' + crsrdId."},
+        "sourceEventId": {"type": ["string", "null"], "minLength": 1, "description": "Provider event/update identifier when it exists. Do not fabricate one from sourceIntersectionId."},
+        "sourceObservedAtUtcMs": {"type": ["integer", "null"], "minimum": 0},
+        "sourceTimeKind": {"$ref": "#/$defs/timeKind"},
+        "serverReceivedAtUtcMs": {"$ref": "#/$defs/utcMs"},
+        "serverSentAtUtcMs": {"$ref": "#/$defs/utcMs"},
+        "remainingAtSourceMs": {"type": ["integer", "null"], "minimum": 0},
+        "expiresAtUtcMs": {"type": ["integer", "null"], "minimum": 0},
+        "timingQuality": {"$ref": "#/$defs/timingQuality"},
+        "unitEvidence": {"$ref": "#/$defs/ProviderUnitEvidence"},
+        "rawStateCode": {"type": ["string", "null"]}
+      }
+    },
+    "LocationSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "sessionId",
+        "latitude",
+        "longitude",
+        "horizontalAccuracyM",
+        "speedMps",
+        "speedAccuracyMps",
+        "courseDeg",
+        "courseAccuracyDeg",
+        "measuredAtUtcMs",
+        "deviceReceivedMonotonicMs"
+      ],
+      "properties": {
+        "schemaVersion": {"$ref": "#/$defs/schemaVersion"},
+        "kind": {"const": "LocationSample"},
+        "sessionId": {"$ref": "#/$defs/nonEmptyString"},
+        "latitude": {"type": "number", "exclusiveMinimum": -90, "exclusiveMaximum": 90},
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+        "horizontalAccuracyM": {"type": "number", "exclusiveMinimum": 0},
+        "speedMps": {"type": ["number", "null"], "minimum": 0},
+        "speedAccuracyMps": {"type": ["number", "null"], "minimum": 0},
+        "courseDeg": {"type": ["number", "null"], "minimum": 0, "exclusiveMaximum": 360},
+        "courseAccuracyDeg": {"type": ["number", "null"], "minimum": 0, "maximum": 180},
+        "measuredAtUtcMs": {"$ref": "#/$defs/utcMs"},
+        "deviceReceivedMonotonicMs": {"$ref": "#/$defs/durationMs"}
+      }
+    },
+    "PredictionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "status", "reason", "arrivalIntervalMs", "greenRemainingIntervalMs"],
+      "properties": {
+        "schemaVersion": {"$ref": "#/$defs/schemaVersion"},
+        "kind": {"const": "PredictionResult"},
+        "status": {"enum": ["possible", "unlikely", "unknown"]},
+        "reason": {"$ref": "#/$defs/reason"},
+        "arrivalIntervalMs": {"oneOf": [{"$ref": "#/$defs/intervalMs"}, {"type": "null"}]},
+        "greenRemainingIntervalMs": {"oneOf": [{"$ref": "#/$defs/intervalMs"}, {"type": "null"}]},
+        "signalStateAtDecision": {"$ref": "#/$defs/signalState"}
+      }
+    },
+    "PredictionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "policyVersion",
+        "approvedForOperation",
+        "maxSignalAgeMs",
+        "clockSkewBudgetMs",
+        "minimumSpeedMps",
+        "maxHorizontalAccuracyM",
+        "extraSafetyMarginMs",
+        "measurementEvidence"
+      ],
+      "properties": {
+        "schemaVersion": {"$ref": "#/$defs/schemaVersion"},
+        "kind": {"const": "PredictionPolicy"},
+        "policyVersion": {"$ref": "#/$defs/nonEmptyString"},
+        "approvedForOperation": {"type": "boolean"},
+        "maxSignalAgeMs": {"$ref": "#/$defs/durationMs"},
+        "clockSkewBudgetMs": {"$ref": "#/$defs/durationMs"},
+        "minimumSpeedMps": {"type": "number", "exclusiveMinimum": 0},
+        "maxHorizontalAccuracyM": {"type": "number", "exclusiveMinimum": 0},
+        "extraSafetyMarginMs": {"$ref": "#/$defs/durationMs"},
+        "measurementEvidence": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    }
+  }
+}
