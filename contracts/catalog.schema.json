@@ -10,6 +10,7 @@
     "schemaVersion": {"const": "sa-contract-1"},
     "kind": {"const": "ApproachCatalog"},
     "catalogVersion": {"type": "string", "minLength": 1},
+    "spatial": {"$ref": "#/$defs/spatial"},
     "sources": {
       "type": "object",
       "minProperties": 1,
@@ -33,6 +34,113 @@
     "nonEmptyString": {"type": "string", "minLength": 1},
     "provider": {"type": "string", "pattern": "^[a-z][a-z0-9._-]{0,63}$"},
     "movement": {"enum": ["straight", "left", "uturn", "bus", "bicycle", "pedestrian"]},
+    "coordinate": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "number", "minimum": -180, "maximum": 180},
+        {"type": "number", "exclusiveMinimum": -90, "exclusiveMaximum": 90}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "lineString": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {"const": "LineString"},
+        "coordinates": {"type": "array", "minItems": 2, "maxItems": 4096, "items": {"$ref": "#/$defs/coordinate"}}
+      }
+    },
+    "roadFeature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "properties", "geometry"],
+      "properties": {
+        "type": {"const": "Feature"},
+        "geometry": {"$ref": "#/$defs/lineString"},
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["roadLinkId", "fromNodeId", "toNodeId", "level", "source"],
+          "properties": {
+            "roadLinkId": {"$ref": "#/$defs/nonEmptyString"},
+            "fromNodeId": {"$ref": "#/$defs/nonEmptyString"},
+            "toNodeId": {"$ref": "#/$defs/nonEmptyString"},
+            "level": {"type": "integer"},
+            "source": {"$ref": "#/$defs/nonEmptyString"}
+          }
+        }
+      }
+    },
+    "stopLineFeature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "properties", "geometry"],
+      "properties": {
+        "type": {"const": "Feature"},
+        "geometry": {"$ref": "#/$defs/lineString"},
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stopLineId", "intersectionKey", "level", "source"],
+          "properties": {
+            "stopLineId": {"$ref": "#/$defs/nonEmptyString"},
+            "intersectionKey": {"$ref": "#/$defs/nonEmptyString"},
+            "level": {"type": "integer"},
+            "source": {"$ref": "#/$defs/nonEmptyString"}
+          }
+        }
+      }
+    },
+    "matchingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyVersion", "approvedForOperation", "measurementEvidence", "maxHorizontalAccuracyM", "maxCourseErrorDeg", "candidateSearchRadiusM", "candidateSeparationM", "minDisplacementM", "maxHistoryAgeMs", "confirmationSamples", "maxRouteDistanceM", "geometryErrorM"],
+      "properties": {
+        "policyVersion": {"$ref": "#/$defs/nonEmptyString"},
+        "approvedForOperation": {"type": "boolean"},
+        "measurementEvidence": {"$ref": "#/$defs/nonEmptyString"},
+        "maxHorizontalAccuracyM": {"type": "number", "exclusiveMinimum": 0},
+        "maxCourseErrorDeg": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 90},
+        "candidateSearchRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
+        "candidateSeparationM": {"type": "number", "exclusiveMinimum": 0},
+        "minDisplacementM": {"type": "number", "exclusiveMinimum": 0},
+        "maxHistoryAgeMs": {"type": "integer", "exclusiveMinimum": 0, "maximum": 30000},
+        "confirmationSamples": {"type": "integer", "minimum": 2, "maximum": 10},
+        "maxRouteDistanceM": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
+        "geometryErrorM": {"type": "number", "minimum": 0}
+      }
+    },
+    "spatial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["crs", "roads", "stopLines", "matchingPolicy", "predictionPolicy"],
+      "properties": {
+        "crs": {"const": "OGC:CRS84"},
+        "roads": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "features"],
+          "properties": {
+            "type": {"const": "FeatureCollection"},
+            "features": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/roadFeature"}}
+          }
+        },
+        "stopLines": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "features"],
+          "properties": {
+            "type": {"const": "FeatureCollection"},
+            "features": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/stopLineFeature"}}
+          }
+        },
+        "matchingPolicy": {"$ref": "#/$defs/matchingPolicy"},
+        "predictionPolicy": {"$ref": "https://signalahead.local/contracts/signal.schema.json#/$defs/PredictionPolicy"}
+      }
+    },
     "directionCode": {"enum": ["nt", "et", "st", "wt", "ne", "se", "sw", "nw"]},
     "rights": {
       "type": "object",

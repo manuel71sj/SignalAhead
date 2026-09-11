@@ -1,6 +1,6 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/7",
-  "status": "transactional-publication-verified-operational-geometry-blocked",
+  "status": "transactional-geometry-bundle-delivery-verified-real-pilot-blocked",
   "artifacts": {
     "catalogTypes": "services/api/src/catalog/types.ts",
     "validator": "services/api/src/catalog/validateCatalog.ts",
@@ -9,20 +9,24 @@
     "migration": "services/api/migrations/0001_catalog.sql",
     "verificationCli": "tools/catalog-import/validate-catalog.ts",
     "operatorCli": "tools/catalog-import/catalog.ts",
-    "tests": "services/api/test/catalog/catalog.test.ts"
+    "tests": "services/api/test/catalog/catalog.test.ts",
+    "drivingFixture": "fixtures/spatial/driving-catalog.json",
+    "drivingBundleRoute": "services/api/src/routes/catalog.ts"
   },
   "implemented": [
     "Raw catalog JSON is validated against the existing draft-2020-12 catalog schema before semantic validation or publication.",
-    "Operational publication rejects every synthetic source and every enabled approach because current contracts contain geometry identifiers but no resolvable directed road and stop-line geometry.",
+    "Operational publication rejects synthetic sources and enabled approaches without resolvable directed roads, a unique same-level stop-line crossing, documented source rights and explicitly approved measured matching/prediction policies.",
     "Synthetic fixture verification is an explicit validator-only mode; neither the runtime store nor operator import exposes that publication bypass.",
     "PostgreSQL publication uses a transaction and advisory lock, retains prior catalog versions, and atomically switches the unique active version.",
     "The operator command executes migration, import and provider/intersection/approach disable. Disable creates a unique version and persists its reason/evidence audit in the same transaction.",
     "Runtime catalog reads query PostgreSQL and revalidate payloads. Missing catalogs, unsafe legacy payloads and unsupported geometry never become fabricated supported approaches.",
-    "Recorded catalogs with disabled approaches can be stored and audited; their supported catalog response is honestly empty. Existing recorded evidence is not relabeled as operational approval."
+    "Recorded catalogs with disabled approaches can be stored and audited; their supported catalog response is honestly empty. Existing recorded evidence is not relabeled as operational approval.",
+    "Optional spatial catalogs reuse the audit GeoJSON road/stop-line representation. Node consistency, reference identity, segment bounds, crossing ambiguity and graph size are validated before publication.",
+    "GET /v1/driving-bundle returns a complete bounded region graph on bbox intersection, not a graph truncated at a branch or intervening stop. Missing bundles return null; oversized responses fail closed."
   ],
   "verification": {
     "status": "passed-local-and-pinned-compose-runtime",
-    "results": "API typecheck/build passed. All 37 API tests passed with TEST_DATABASE_URL, including isolated PostgreSQL history, disable audit and rollback. Migration CLI succeeded. Explicit synthetic verification exited 0; the same fixture without that flag exited 1 with SYNTHETIC_SOURCE and UNSUPPORTED_GEOMETRY.",
+    "results": "API typecheck/build passed. All 64 API tests passed with TEST_DATABASE_URL, including isolated PostgreSQL history/rollback, geometry publication boundaries and complete driving-bundle delivery. Positive approval predicates are simulated only in test memory; the checked-in driving fixture remains synthetic and unapproved.",
     "commands": [
       "npm run check:api",
       "npm run test:api",
@@ -34,7 +38,7 @@
     "expectedSyntheticOperationalValidation": "nonzero exit; synthetic catalog is not operationally publishable"
   },
   "notClosedReasons": [
-    "No verified operational road/stop-line geometry is available in the existing contract.",
+    "No recorded geometry bundle with independently verified rights, direction review and measured operational policies has been approved.",
     "No real enabled pilot approach is approved or seeded."
   ]
 }

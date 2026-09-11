@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'drive_session/drive_session_state.dart';
+import 'driving/driving_view_data.dart';
+import 'features/driving/presentation/driving_content.dart';
 import 'location/location_gateway.dart';
 import 'signals/catalog_client.dart';
 
@@ -57,6 +59,7 @@ class _DriveScreenState extends State<DriveScreen> with WidgetsBindingObserver {
         DriveSessionController(
           location: PlatformLocationGateway(),
           createCatalogClient: () => HttpCatalogClient(configured ? uri : null),
+          signalBaseUri: configured ? uri : null,
         );
     controller.addListener(_changed);
   }
@@ -109,6 +112,8 @@ class _DriveScreenState extends State<DriveScreen> with WidgetsBindingObserver {
         '주행이 일시 정지되었습니다. 새 위치와 신호를 확인하기 전에는 예측을 표시하지 않습니다.',
       DriveSessionPhase.driving => switch (controller.coverage.status) {
           CoverageStatus.checking => '주변의 검증된 지원 구간을 확인하고 있습니다.',
+          CoverageStatus.supported =>
+            '진행 도로와 정지선을 확인하고 있습니다. 방향이 확정되면 현재 신호를 구독합니다.',
           CoverageStatus.unsupported =>
             '이 주변에는 검증된 지원 구간이 없습니다. 신호와 도달 예측을 표시하지 않습니다.',
           CoverageStatus.geometryUnavailable =>
@@ -142,85 +147,24 @@ class _DriveScreenState extends State<DriveScreen> with WidgetsBindingObserver {
             : sample == null
                 ? '위치 확인 중'
                 : '지원 정보 없음';
-    final text = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
           title: const Text('SignalAhead'),
           backgroundColor: Colors.transparent),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              children: [
-                Text(phaseLabel,
-                    style: text.labelLarge
-                        ?.copyWith(color: const Color(0xFF69DBB6))),
-                const SizedBox(height: 24),
-                Semantics(
-                  label: '신호 정보 없음',
-                  excludeSemantics: true,
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                        color: const Color(0xFF1B2B3A),
-                        borderRadius: BorderRadius.circular(24)),
-                    child: const Column(children: [
-                      Icon(Icons.traffic_outlined,
-                          size: 72, color: Colors.white54),
-                      SizedBox(height: 12),
-                      Text('신호 정보 없음',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 6),
-                      Text('잔여시간 —', style: TextStyle(fontSize: 18)),
-                    ]),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(title,
-                    style: text.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Text(_message, style: text.bodyLarge?.copyWith(height: 1.5)),
-                if (sample != null) ...[
-                  const SizedBox(height: 24),
-                  Wrap(spacing: 24, runSpacing: 12, children: [
-                    Text(
-                        '현재 속도 ${sample.speedMps == null ? '—' : '${(sample.speedMps! * 3.6).round()} km/h'}',
-                        style: text.titleMedium),
-                    Text('위치 오차 ±${sample.horizontalAccuracyM.round()} m',
-                        style: text.titleMedium),
-                  ]),
-                  const SizedBox(height: 8),
-                  const Text('정지선 거리 — · 판단 보류'),
-                ],
-                const SizedBox(height: 28),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56)),
-                  onPressed:
-                      active ? controller.stop : () => controller.start(),
-                  child: Text(active ? '주행 종료' : '주행 시작'),
-                ),
-                if (controller.blocker != null && !kIsWeb) ...[
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48)),
-                    onPressed: controller.location.openSettings,
-                    child: const Text('위치 설정 열기'),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                Text('신호등과 도로 상황을 직접 확인하세요.\n이 앱은 출발·가속·교차로 통과를 지시하지 않습니다.',
-                    style: text.bodySmall
-                        ?.copyWith(color: Colors.white60, height: 1.5)),
-              ],
+      body: DrivingContent(
+        data: controller.drivingView ??
+            DrivingViewData(
+              active: active,
+              phaseLabel: phaseLabel,
+              heading: title,
+              message: _message,
+              speedMps: sample?.speedMps,
+              horizontalAccuracyM: sample?.horizontalAccuracyM,
             ),
-          ),
-        ),
+        onStartStop: active ? controller.stop : () => controller.start(),
+        onOpenSettings: controller.blocker != null && !kIsWeb
+            ? controller.location.openSettings
+            : null,
       ),
     );
   }

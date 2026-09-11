@@ -4,9 +4,11 @@ import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 
 import '../location/location_sample.dart';
+import '../map_matching/driving_bundle.dart';
 
 enum CoverageStatus {
   checking,
+  supported,
   unsupported,
   geometryUnavailable,
   offline,
@@ -14,9 +16,10 @@ enum CoverageStatus {
 }
 
 class CoverageResult {
-  const CoverageResult(this.status, {this.catalogVersion});
+  const CoverageResult(this.status, {this.bundle});
   final CoverageStatus status;
-  final String? catalogVersion;
+  final DrivingBundle? bundle;
+  String? get catalogVersion => bundle?.catalogVersion;
 }
 
 abstract interface class CatalogClient {
@@ -47,7 +50,7 @@ class HttpCatalogClient implements CatalogClient {
     ].join(',');
     try {
       final response = await _client
-          .get(base.resolve('/v1/catalog').replace(
+          .get(base.resolve('/v1/driving-bundle').replace(
             queryParameters: {'bbox': bbox},
           ))
           .timeout(const Duration(seconds: 5));
@@ -56,22 +59,22 @@ class HttpCatalogClient implements CatalogClient {
         return const CoverageResult(CoverageStatus.offline);
       }
       final data = jsonDecode(response.body);
-      if (data is! Map<String, dynamic> ||
-          data['approaches'] is! List ||
-          data['intersections'] is! List ||
-          (data['catalogVersion'] != null &&
-              data['catalogVersion'] is! String)) {
+      if (data is! Map<String, dynamic> || !data.containsKey('catalog')) {
         return const CoverageResult(CoverageStatus.offline);
       }
-      final approaches = data['approaches'] as List;
-      // The current catalog contract contains IDs/reviews but no road polyline
-      // or stop-line geometry. Never turn its nearest center into a target.
-      return CoverageResult(
-        approaches.isEmpty
-            ? CoverageStatus.unsupported
-            : CoverageStatus.geometryUnavailable,
-        catalogVersion: data['catalogVersion'] as String?,
-      );
+      final catalog = data['catalog'];
+      if (catalog == null) {
+        return const CoverageResult(CoverageStatus.unsupported);
+      }
+      if (catalog is! Map<String, dynamic>) {
+        return const CoverageResult(CoverageStatus.geometryUnavailable);
+      }
+      try {
+        final bundle = DrivingBundle.fromJson(catalog);
+        return CoverageResult(CoverageStatus.supported, bundle: bundle);
+      } on FormatException {
+        return const CoverageResult(CoverageStatus.geometryUnavailable);
+      }
     } on Exception {
       return const CoverageResult(CoverageStatus.offline);
     }

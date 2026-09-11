@@ -30,4 +30,31 @@ export function registerCatalogRoutes(app: FastifyInstance, catalogStore: Catalo
     const intersections = active.intersections.filter((intersection) => supported.has(intersection.intersectionKey));
     return { catalogVersion: active.catalogVersion, intersections, approaches };
   });
+  app.get<{ Querystring: { bbox?: unknown } }>("/v1/driving-bundle", async (request, reply) => {
+    const bbox = parseBbox(request.query.bbox);
+    if (bbox === null) return reply.status(400).send({ error: "INVALID_BBOX", message: "bbox must be CRS84 west,south,east,north with at most one degree per axis" });
+    let active;
+    try {
+      active = await catalogStore.getActive();
+    } catch {
+      return reply.status(503).send({ error: "CATALOG_UNAVAILABLE", catalog: null });
+    }
+    if (active?.spatial === undefined) return { catalog: null };
+    const intersects = active.spatial.roads.features.some((road) => {
+      let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+      for (const [longitude, latitude] of road.geometry.coordinates) {
+        west = Math.min(west, longitude);
+        south = Math.min(south, latitude);
+        east = Math.max(east, longitude);
+        north = Math.max(north, latitude);
+      }
+      return west <= bbox.east && east >= bbox.west && south <= bbox.north && north >= bbox.south;
+    });
+    if (!intersects) return { catalog: null };
+    // Bbox selects a complete version, never a graph fragment. Branches and
+    // disabled stop barriers outside the viewport remain visible to matching.
+    const body = JSON.stringify({ catalog: active });
+    if (Buffer.byteLength(body, "utf8") > 1024 * 1024) return reply.status(413).send({ error: "DRIVING_BUNDLE_LIMIT", catalog: null });
+    return reply.type("application/json").send(body);
+  });
 }

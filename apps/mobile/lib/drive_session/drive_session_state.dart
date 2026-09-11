@@ -3,9 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../driving/driving_pipeline.dart';
+import '../driving/driving_view_data.dart';
 import '../location/location_gateway.dart';
 import '../location/location_sample.dart';
 import '../signals/catalog_client.dart';
+import '../map_matching/road_matcher.dart';
+import '../map_matching/driving_bundle.dart';
+import '../signals/signal_stream.dart';
+import '../signals/signal_target.dart';
 
 enum DriveSessionPhase {
   idle,
@@ -20,6 +26,7 @@ class DriveSessionController extends ChangeNotifier {
   DriveSessionController({
     required this.location,
     required this.createCatalogClient,
+    this.signalBaseUri,
     DateTime Function()? utcNow,
     int Function()? monotonicNow,
   }) : _utcNow = utcNow ?? DateTime.now {
@@ -29,6 +36,7 @@ class DriveSessionController extends ChangeNotifier {
 
   final LocationGateway location;
   final CatalogClient Function() createCatalogClient;
+  final Uri? signalBaseUri;
   final DateTime Function() _utcNow;
   final Stopwatch _clock = Stopwatch();
   late final int Function() _monotonicNow;
@@ -43,6 +51,12 @@ class DriveSessionController extends ChangeNotifier {
   bool _foreground = true;
   bool _permissionPending = false;
   int? _acquiringSince;
+  DrivingPipeline? _pipeline;
+  RoadMatcher? _matcher;
+  String? _activeCatalogVersion;
+  SignalTarget? _target;
+  int _targetGeneration = 0;
+  DrivingViewData? get drivingView => _pipeline?.view;
 
   DriveSessionPhase phase = DriveSessionPhase.idle;
   LocationBlocker? blocker;
@@ -150,7 +164,13 @@ class DriveSessionController extends ChangeNotifier {
       sample = null;
       blocker = LocationBlocker.staleLocation;
       phase = DriveSessionPhase.acquiringLocation;
+      _invalidateMatch();
       _emit();
+      return;
+    }
+    final previous = sample;
+    if (previous != null &&
+        position.timestamp.millisecondsSinceEpoch <= previous.measuredAtUtcMs) {
       return;
     }
     final now = _monotonicNow();
@@ -177,6 +197,7 @@ class DriveSessionController extends ChangeNotifier {
     );
     phase = DriveSessionPhase.driving;
     blocker = null;
+    _updatePrediction();
     _emit();
     if (!_queryPending &&
         (_lastCatalogCheck == null || now - _lastCatalogCheck! >= 15000)) {
@@ -194,14 +215,110 @@ class DriveSessionController extends ChangeNotifier {
     _queryPending = false;
     if (sample == null || !_foreground) return;
     coverage = result;
+    final bundle = result.bundle;
+    if (result.status != CoverageStatus.supported ||
+        bundle == null ||
+        signalBaseUri == null) {
+      _discardPipeline();
+    } else {
+      if (_activeCatalogVersion != bundle.catalogVersion) {
+        _discardPipeline();
+        _matcher = RoadMatcher(bundle);
+        _activeCatalogVersion = bundle.catalogVersion;
+        _pipeline = DrivingPipeline(
+          signals: SignalStreamController(
+            baseUri: signalBaseUri!,
+            policy: bundle.predictionPolicy,
+            monotonicNow: _monotonicNow,
+            utcNow: _utcNow,
+            syntheticFixture: bundle.syntheticFixture,
+          ),
+          policy: bundle.predictionPolicy,
+          monotonicNow: _monotonicNow,
+          utcNow: _utcNow,
+          synthetic: bundle.syntheticFixture,
+        )..start(sessionId!);
+        _pipeline!.addListener(_emit);
+        _updatePrediction();
+      }
+    }
     _emit();
+  }
+
+  void _updatePrediction() {
+    final current = sample;
+    final pipeline = _pipeline;
+    final matcher = _matcher;
+    if (current == null || pipeline == null || matcher == null) return;
+    final result = matcher.update(current, _monotonicNow());
+    final approach = result.approach;
+    if (result.status == MatchingStatus.matched &&
+        approach != null &&
+        result.distanceM?.isValid == true) {
+      final previous = _target;
+      if (previous == null ||
+          previous.sessionId != current.sessionId ||
+          previous.provider != approach.provider ||
+          previous.intersectionKey != approach.intersectionKey ||
+          previous.approachKey != approach.approachKey ||
+          previous.movement != approach.movement ||
+          previous.catalogVersion != approach.catalogVersion) {
+        _target = SignalTarget(
+          sessionId: current.sessionId,
+          targetGeneration: ++_targetGeneration,
+          provider: approach.provider,
+          intersectionKey: approach.intersectionKey,
+          approachKey: approach.approachKey,
+          movement: approach.movement,
+          catalogVersion: approach.catalogVersion,
+        );
+      }
+    } else if (_target != null) {
+      _target = null;
+      ++_targetGeneration;
+    }
+    unawaited(pipeline.update(
+      location: current,
+      target: _target,
+      distanceM: _target == null ? null : result.distanceM,
+    ));
+  }
+
+  void _invalidateMatch() {
+    _lastCatalogCheck = null;
+    _matcher?.clear();
+    if (_target != null) ++_targetGeneration;
+    _target = null;
+    final pipeline = _pipeline;
+    if (pipeline != null) {
+      unawaited(pipeline.update(location: null, target: null));
+    }
+  }
+
+  void _discardPipeline() {
+    final pipeline = _pipeline;
+    _pipeline = null;
+    _matcher = null;
+    _activeCatalogVersion = null;
+    if (_target != null) ++_targetGeneration;
+    _target = null;
+    pipeline?.removeListener(_emit);
+    pipeline?.dispose();
   }
 
   void checkFreshness() {
     if (!running || _disposed) return;
     final now = _monotonicNow();
-    final received = sample?.deviceReceivedMonotonicMs;
-    if ((received != null && (now < received || now - received >= 5000)) ||
+    final current = sample;
+    final received = current?.deviceReceivedMonotonicMs;
+    final sourceAge = current == null
+        ? 5000
+        : _utcNow().millisecondsSinceEpoch - current.measuredAtUtcMs;
+    if ((received != null &&
+            (now < received ||
+                now - received >= 5000 ||
+                sourceAge < -1000 ||
+                sourceAge >= 5000)) ||
         (received == null &&
             _acquiringSince != null &&
             now - _acquiringSince! >= 15000)) {
@@ -209,6 +326,7 @@ class DriveSessionController extends ChangeNotifier {
       coverage = const CoverageResult(CoverageStatus.checking);
       blocker = LocationBlocker.staleLocation;
       phase = DriveSessionPhase.acquiringLocation;
+      _invalidateMatch();
       _emit();
     }
   }
@@ -238,6 +356,7 @@ class DriveSessionController extends ChangeNotifier {
   }
 
   void _clearResources() {
+    _discardPipeline();
     unawaited(_positions?.cancel());
     unawaited(_services?.cancel());
     _positions = null;

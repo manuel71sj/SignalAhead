@@ -1,33 +1,66 @@
 {
   "issue": "https://github.com/manuel71sj/SignalAhead/issues/9",
-  "status": "foreground-location-lifecycle-verified-on-ios-and-android-emulators",
+  "status": "native-location-matching-and-signal-pipeline-verified-real-data-gated",
   "artifacts": {
     "controller": "apps/mobile/lib/drive_session/drive_session_state.dart",
     "platformLocation": "apps/mobile/lib/location/location_gateway.dart",
     "locationSample": "apps/mobile/lib/location/location_sample.dart",
     "screen": "apps/mobile/lib/main.dart",
     "catalogClient": "apps/mobile/lib/signals/catalog_client.dart",
-    "tests": "apps/mobile/test/drive_session/drive_session_state_test.dart"
+    "tests": "apps/mobile/test/drive_session/drive_session_state_test.dart",
+    "matcher": "apps/mobile/lib/map_matching/",
+    "pipeline": "apps/mobile/lib/driving/driving_pipeline.dart",
+    "stream": "apps/mobile/lib/signals/signal_stream.dart",
+    "presentation": "apps/mobile/lib/features/driving/presentation/",
+    "developmentEntry": "apps/mobile/lib/main_replay.dart"
   },
   "implemented": [
     "Explicit start is required before the real geolocator permission request and position stream. No last-known location lookup or background location permission.",
     "Pause, stop, service failure and disposal invalidate callbacks, clear location/catalog state and cancel sensor subscriptions and HTTP client.",
     "Resume rechecks permissions before establishing a fresh session. Late permission completion cannot restart a stopped session.",
     "The permission-dialog inactive/resume race was reproduced in the Orca iOS simulator and a failing regression test, then fixed and re-exercised successfully.",
+    "Reacquiring GPS after freshness loss originally stayed in coverage-checking until the periodic query interval. A failing regression reproduced it; acquisition invalidation now resets query eligibility. Orca iOS location clear/set verification observed stale-location removal followed by a resolved server response within the 900ms observation window.",
     "Invalid speed/course sentinels remain null. Stationary GPS course is not treated as vehicle intent.",
-    "Only a bounded nearby catalog query leaves the device. Missing geometry or unavailable server never produces a target, countdown or pass recommendation."
+    "Only a bounded nearby bundle query leaves the device. Missing geometry or unavailable server never produces a target, countdown or pass recommendation.",
+    "The normal session consumes validated complete geometry bundles, matches directed roads using bounded course/displacement history, and owns target generations and the signal connection. Geometry is not inferred from an intersection center.",
+    "Target, source-timestamped position and road-distance uncertainty enter the prediction pipeline atomically. Duplicate positions cannot renew motion history; source age cannot become a new five-second receipt lifetime.",
+    "Catalog/session/target changes, pause, stop and permission loss dispose or invalidate the previous subscription and prediction. Resume requires fresh location and a new verified signal snapshot."
   ],
   "verification": {
     "sdk": "Flutter 3.47.3 / Dart 3.13.3",
     "analyze": "flutter analyze: no issues",
-    "tests": "flutter test: 37 tests passed, including prediction/deadline and permission race regressions",
+    "tests": "flutter test: 85 tests passed, including directed matching, real socket transport, session-to-stream permission revocation, source-age expiry, atomic stopped-state and reacquired-coverage regressions",
     "ios": "Orca iPhone 17, iOS 26.5: fresh launch, explicit start, actual When In Use dialog, permission completion, injected simulator GPS, live speed/accuracy, offline catalog state, home/resume, stop clearing speed/accuracy.",
     "android": "Orca Pixel_6_Pro_API_34: actual permission dialog, denial/retry, precise foreground location, injected emulator GPS, live speed/accuracy, home/resume acquiring fresh location, stop, revoked precise permission and disabled location-service guidance.",
     "builds": "flutter build ios --simulator --debug; flutter build apk --debug; flutter build web all succeeded without bypassing icon tree shaking.",
     "visual": "Native Android screenshot inspected; both platforms' real accessibility trees exercised through Orca. Emulator GPS injection is synthetic sensor verification, not field evidence."
   },
+  "matchingVerification": {
+    "issue": "https://github.com/manuel71sj/SignalAhead/issues/10",
+    "fixture": "fixtures/spatial/driving-catalog.json",
+    "scope": "Authored synthetic directed roads, stop-line crossings and explicitly unapproved policies; no real surveyed geometry or provider direction approval.",
+    "observed": "Four approaches, nearer other-road signal, opposite direction, grade ambiguity and feeder connectivity, consecutive/passed stops, missing/disabled/unassigned stop barriers, ambiguous forks and non-increasing source timestamps.",
+    "bounds": "Precomputed geometry/index, at most ten history samples, bounded candidates/graph traversal. Distance intervals include location/geometry uncertainty and conservative spherical-distance approximation error."
+  },
+  "pipelineReplayVerification": {
+    "issue": "https://github.com/manuel71sj/SignalAhead/issues/12",
+    "server": "npm --workspace services/api run replay",
+    "ios": "flutter run -d <ios-device> -t lib/main_replay.dart",
+    "android": "adb -s <device> reverse tcp:3090 tcp:3090; flutter run -d <device> -t lib/main_replay.dart --dart-define=REPLAY_BASE_URL=http://127.0.0.1:3090",
+    "nativeStates": "Both Orca-managed native platforms exercised green possible, slowing/interval overlap, unlikely, stopped, yellow, red, flashing, target change, unverified timing/ambiguity and expiry through real HTTP clock exchange and WebSocket data, not expected-result UI injection.",
+    "androidResume": "Current native build was backgrounded from a fresh green replay; the server was stopped, then the app resumed. Inspected settled screen showed CLOCK_CONNECTION_FAILED, unknown signal, no remaining number and no possible/arrival graph.",
+    "clockEnvironment": "Android emulator NAT measured approximately 744–1000ms RTT and correctly exceeded the synthetic 500ms uncertainty budget. ADB reverse to loopback restored the transport without weakening the budget.",
+    "boundary": "Replay is an explicit debug-only entry with visible synthetic/non-driving warnings. Backend replay binds loopback and refuses production mode. Normal startup never imports replay data."
+  },
+  "presentationVerification": {
+    "issue": "https://github.com/manuel71sj/SignalAhead/issues/13",
+    "surface": "Direction, current shape/color/label, conservative integer remaining range, result, secondary speed/distance and a shared-axis uncertainty graph. Non-green/expired/stopped states do not retain an optimistic arrival graph.",
+    "regression": "Removing the graph on stop moved the primary information down by 111 logical pixels. A failing position-stability regression reproduced it; top alignment fixed the test and actual Android screenshot.",
+    "accessibility": "Widget matrix: 320x568, 390x844, 430x932 at scales 1, 1.5, 2. Actual Android: 320x568 logical viewport with system font_scale=2.0; primary signal/range/result visible. Replay header clipping was corrected; emulator display settings restored.",
+    "toolLimitation": "Orca Android accessibility dumps could reuse stale window XML while Flutter was updating. Direct emulator screenshots were used as authoritative visual evidence and the tool defect was reported."
+  },
   "remainingProductionGates": [
-    "Real road/stop-line geometry and reviewed direction mapping are absent. No production signal target subscription is enabled.",
+    "No recorded road/stop-line bundle with independently verified source rights and direction review is approved in the operational database. The implementation can consume such a bundle; current empty support remains intentional.",
     "Provider timing units, source ordering and measured operational policy remain unapproved. Live countdown and crossing predictions are intentionally withheld.",
     "Physical-device driving accuracy, power use and field signal comparison are not certified by emulator checks."
   ]

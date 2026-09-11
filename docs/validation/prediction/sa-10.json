@@ -16,13 +16,15 @@
   "verification": {
     "sdk": "Flutter 3.47.3 / Dart 3.13.3",
     "analyze": "flutter analyze: no issues",
-    "tests": "flutter test: all 37 mobile tests passed, including prediction and deadline scenarios",
+    "tests": "flutter test: all 85 mobile tests passed, including prediction, deadlines, matching, real socket transport and session integration",
     "scenarios": [
       "[13,17]s arrival versus [20,26]s green: possible",
       "[22,26]s arrival versus [12,18]s green: unlikely",
       "[13,20]s touching [20,26]s: unknown",
       "TTL equality, expired source age, rollback, duplicate and unverified newer events cannot revive stale signal timing",
-      "Zero speed, nonfinite input, stop-line overlap, missing policy and unverified timing do not produce possible"
+      "Zero speed, nonfinite input, stop-line overlap, missing policy and unverified timing do not produce possible",
+      "An already four-second-old location expires after the remaining source-age budget, not five seconds after receipt; fresh signal data cannot keep its prediction alive.",
+      "Speed, target and road distance are committed atomically. A stop update cannot notify listeners with the previous optimistic result and the new distance."
     ]
   },
   "productionBoundary": "Engine verification does not approve live provider timing, geometry or operational policy. Ordinary mobile driving currently withholds countdown/predictions because these external evidence gates are unmet."

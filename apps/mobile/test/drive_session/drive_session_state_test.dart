@@ -165,4 +165,28 @@ void main() {
     expect(controller.sample, isNull);
     expect(controller.blocker, LocationBlocker.staleLocation);
   });
+
+  test(
+      'reacquired location resolves coverage without waiting for periodic query',
+      () async {
+    controller.dispose();
+    controller = DriveSessionController(
+      location: location,
+      createCatalogClient: () => catalog,
+      utcNow: () => DateTime.fromMillisecondsSinceEpoch(100000 + monotonic),
+      monotonicNow: () => monotonic,
+    );
+    await controller.start();
+    location.updates.add(position());
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.coverage.status, CoverageStatus.unsupported);
+    monotonic = 5000;
+    controller.checkFreshness();
+    expect(controller.sample, isNull);
+    location.updates.add(position(
+        timestamp: DateTime.fromMillisecondsSinceEpoch(100000 + monotonic)));
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.sample, isNotNull);
+    expect(controller.coverage.status, CoverageStatus.unsupported);
+  });
 }

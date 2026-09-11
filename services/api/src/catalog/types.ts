@@ -52,6 +52,48 @@ export type DisableCommand = {
   evidence: string;
 };
 
+export type Coordinate = [number, number];
+export type LineFeature<Properties> = {
+  type: "Feature";
+  properties: Properties;
+  geometry: { type: "LineString"; coordinates: Coordinate[] };
+};
+export type RoadFeature = LineFeature<{ roadLinkId: string; fromNodeId: string; toNodeId: string; level: number; source: string }>;
+export type StopLineFeature = LineFeature<{ stopLineId: string; intersectionKey: string; level: number; source: string }>;
+export type MatchingPolicy = {
+  policyVersion: string;
+  approvedForOperation: boolean;
+  measurementEvidence: string;
+  maxHorizontalAccuracyM: number;
+  maxCourseErrorDeg: number;
+  candidateSearchRadiusM: number;
+  candidateSeparationM: number;
+  minDisplacementM: number;
+  maxHistoryAgeMs: number;
+  confirmationSamples: number;
+  maxRouteDistanceM: number;
+  geometryErrorM: number;
+};
+export type CatalogPredictionPolicy = {
+  schemaVersion: "sa-contract-1";
+  kind: "PredictionPolicy";
+  policyVersion: string;
+  approvedForOperation: boolean;
+  maxSignalAgeMs: number;
+  clockSkewBudgetMs: number;
+  minimumSpeedMps: number;
+  maxHorizontalAccuracyM: number;
+  extraSafetyMarginMs: number;
+  measurementEvidence: string;
+};
+export type CatalogSpatial = {
+  crs: "OGC:CRS84";
+  roads: { type: "FeatureCollection"; features: RoadFeature[] };
+  stopLines: { type: "FeatureCollection"; features: StopLineFeature[] };
+  matchingPolicy: MatchingPolicy;
+  predictionPolicy: CatalogPredictionPolicy;
+};
+
 export type ApproachCatalog = {
   schemaVersion: "sa-contract-1";
   kind: "ApproachCatalog";
@@ -60,6 +102,7 @@ export type ApproachCatalog = {
   intersections: CatalogIntersection[];
   approaches: CatalogApproach[];
   disabledRegions: DisabledRegion[];
+  spatial?: CatalogSpatial;
 };
 
 export type CatalogValidationIssue = {
@@ -74,6 +117,9 @@ export type CatalogValidationIssue = {
     | "UNVERIFIED_RIGHTS"
     | "UNVERIFIED_DIRECTION"
     | "UNVERIFIED_GEOMETRY"
+    | "UNVERIFIED_POLICY"
+    | "GEOMETRY_LIMIT"
+    | "INVALID_GEOMETRY"
     | "UNSUPPORTED_MOVEMENT"
     | "DUPLICATE_KEY";
   key: string;

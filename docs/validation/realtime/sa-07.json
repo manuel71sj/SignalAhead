@@ -7,20 +7,24 @@
     "streamRoute": "services/api/src/routes/stream.ts",
     "streamProtocol": "services/api/src/realtime/protocol.ts",
     "app": "services/api/src/app.ts",
-    "tests": "services/api/test/routes/routes.test.ts"
+    "tests": "services/api/test/routes/routes.test.ts",
+    "timeRoute": "services/api/src/routes/time.ts",
+    "developmentReplay": "services/api/src/replay.ts"
   },
   "implemented": [
     "GET /v1/catalog parses complete decimal bbox fields, enforces CRS84 bounds and a maximum one-degree span per axis, and limits results to 1000 supported approaches. Intersections without supported approaches are not advertised.",
-    "HTTP and WebSocket share one snapshot gate requiring matching current catalog version, active enabled straight approach, complete provider identity, verified generation time and known units. Null timing, expired phase/TTL, future or old source times and unknown/flashing signal states are unavailable.",
+    "HTTP and WebSocket share one snapshot gate requiring matching current catalog version, active enabled straight approach, complete provider identity, verified generation time and known units. Null timing, expired phase/TTL, future or old source times and unknown signals are unavailable. Verified flashing state is displayed as flashing, never a green arrival prediction.",
     "Transport safety uses a maximum source/receipt age of 5000ms; this conservative cutoff does not establish provider units or source-time semantics.",
     "WebSocket registration is awaited before upgrade route declaration. Malformed JSON is handled as a protocol error rather than escaping the message callback.",
     "Subscribe sends complete current state, never a delta requiring a prior connection. Messages carry requestId, streamEpoch and per-connection sequence.",
     "A shared 250ms poll reads the current PostgreSQL catalog and emits changed snapshots, expiry and catalog invalidations. Database read failures produce unavailable; query time is bounded.",
-    "Bounds: 2048-byte incoming payload, 128-character requestId, 512-character approach/version keys, 32 subscriptions per connection, 64 connections, 20 messages per second per connection, and 65536-byte outgoing buffer. Heartbeats terminate unresponsive peers; shutdown removes timers and connections."
+    "Bounds: 2048-byte incoming payload, 128-character requestId, 512-character approach/version keys, 32 subscriptions per connection, 64 connections, 20 messages per second per connection, and 65536-byte outgoing buffer. Heartbeats terminate unresponsive peers; shutdown removes timers and connections.",
+    "GET /v1/time returns no-store server receipt/send UTC milliseconds. Mobile bounds clock uncertainty using measured round-trip time instead of assuming matching clocks.",
+    "The separate loopback replay executable drives real HTTP/time/WebSocket routes with explicitly synthetic observations. Production startup never imports it, and it refuses NODE_ENV=production."
   ],
   "verification": {
     "status": "passed-local-and-pinned-compose-runtime",
-    "results": "All 37 API tests passed, including a real socket test of initial snapshot, expiry, catalog invalidation and connection rate limits. Separate live API smoke returned INVALID_MESSAGE for malformed JSON, then CATALOG_UNAVAILABLE on a valid subscription without disconnecting.",
+    "results": "All 64 API tests passed, including real socket initial snapshot, expiry, catalog invalidation, connection limits, clock exchange and geometry-bundle boundaries. Native iOS/Android replay exercised real HTTP/time/WebSocket transport; synthetic evidence does not authorize a live provider feed.",
     "commands": [
       "npm run check:api",
       "npm --workspace services/api test -- test/routes/routes.test.ts",

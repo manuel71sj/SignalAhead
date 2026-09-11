@@ -8,9 +8,9 @@ function schema(name: string): object {
 }
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
-export const catalogSchema = schema("catalog");
-export const validateCatalogShape = ajv.compile(catalogSchema);
 const signalSchema = schema("signal");
 ajv.addSchema(signalSchema);
+export const catalogSchema = schema("catalog");
+export const validateCatalogShape = ajv.compile(catalogSchema);
 export const validateSignalShape = ajv.compile({ $ref: "https://signalahead.local/contracts/signal.schema.json#/$defs/SignalObservation" });
 export const validateReplayShape = ajv.compile(schema("replay"));

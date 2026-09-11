@@ -1,0 +1,25 @@
+{
+  "kind": "DrivingRuntimeFixture",
+  "origin": "synthetic",
+  "description": "Authored development-only inputs. No surveyed geometry, provider timing or operational approval. Distances are explicit test inputs, not derived from expected results.",
+  "policy": {
+    "maxSignalAgeMs": 3000,
+    "clockSkewBudgetMs": 500,
+    "minimumSpeedMps": 1.5,
+    "maxHorizontalAccuracyM": 25,
+    "extraSafetyMarginMs": 1000
+  },
+  "scenes": [
+    {"id":"possible","label":"가능 구간","signalState":"green","remainingMs":26000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true},
+    {"id":"slowing","label":"감속·구간 겹침","signalState":"green","remainingMs":22000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":2,"speedMaxMps":12,"publish":true},
+    {"id":"unlikely","label":"도달 어려움","signalState":"green","remainingMs":18000,"distanceMinM":220,"distanceMaxM":260,"speedMinMps":10,"speedMaxMps":10,"publish":true},
+    {"id":"stopped","label":"정차","signalState":"green","remainingMs":26000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":0,"speedMaxMps":0,"publish":true},
+    {"id":"yellow","label":"황색","signalState":"yellow","remainingMs":18000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true},
+    {"id":"red","label":"적색","signalState":"red","remainingMs":18000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true},
+    {"id":"flashing","label":"점멸","signalState":"flashing","remainingMs":18000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true},
+    {"id":"expired","label":"수신 중단·만료","signalState":"green","remainingMs":26000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":false},
+    {"id":"unverified","label":"시간 미확인","signalState":"green","remainingMs":26000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true,"unverified":true},
+    {"id":"target-b","label":"다른 목표 B","signalState":"red","remainingMs":18000,"distanceMinM":100,"distanceMaxM":120,"speedMinMps":10,"speedMaxMps":10,"publish":true,"secondTarget":true},
+    {"id":"ambiguous","label":"방향 불명","signalState":"green","remainingMs":26000,"distanceMinM":130,"distanceMaxM":170,"speedMinMps":10,"speedMaxMps":10,"publish":true,"ambiguous":true}
+  ]
+}

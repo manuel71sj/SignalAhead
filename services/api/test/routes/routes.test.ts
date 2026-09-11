@@ -53,6 +53,41 @@ describe("catalog and signal safety routes", () => {
     } finally { await app.close(); }
   });
 
+  test("driving bundle selects a full graph by road bounds, not intersection centers", async () => {
+    const store = new FixtureStore();
+    const catalog = JSON.parse(readFileSync(resolve(process.cwd(), "../..", "fixtures/spatial/driving-catalog.json"), "utf8")) as ApproachCatalog;
+    Object.assign(store.catalog, catalog);
+    store.catalog.approaches[0]!.enabledForOperation = false;
+    const app = buildApp({ config: loadConfig({}), catalogStore: store });
+    try {
+      // No intersection center is inside this viewport. All roads and stop
+      // barriers, including the disabled first target and distant branches,
+      // must nevertheless be delivered from this one immutable version.
+      const response = await app.inject({ method: "GET", url: "/v1/driving-bundle?bbox=126.9991,36.99999,126.9992,37.00001" });
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ catalog: store.catalog });
+      const outside = await app.inject({ method: "GET", url: "/v1/driving-bundle?bbox=120,30,121,31" });
+      expect(outside.json()).toEqual({ catalog: null });
+      for (const bbox of ["126x,37,127,38", "126,38,127,37", "-180,-89,180,89", "126,37,127,38&bbox=126,37,127,38"]) {
+        expect((await app.inject({ method: "GET", url: `/v1/driving-bundle?bbox=${bbox}` })).statusCode).toBe(400);
+      }
+      expect((await app.inject({ method: "GET", url: "/v1/driving-bundle" })).statusCode).toBe(400);
+    } finally { await app.close(); }
+  });
+
+  test("driving bundle never returns a partial oversized graph or a center-only catalog", async () => {
+    const store = new FixtureStore();
+    const app = buildApp({ config: loadConfig({}), catalogStore: store });
+    try {
+      expect((await app.inject({ method: "GET", url: "/v1/driving-bundle?bbox=126.9,37.5,127,37.6" })).json()).toEqual({ catalog: null });
+      Object.assign(store.catalog, JSON.parse(readFileSync(resolve(process.cwd(), "../..", "fixtures/spatial/driving-catalog.json"), "utf8")));
+      store.catalog.intersections[0]!.name = "가".repeat(400000);
+      const response = await app.inject({ method: "GET", url: "/v1/driving-bundle?bbox=126.9991,36.99999,126.9992,37.00001" });
+      expect(response.statusCode).toBe(413);
+      expect(response.json()).toEqual({ error: "DRIVING_BUNDLE_LIMIT", catalog: null });
+    } finally { await app.close(); }
+  });
+
   test("catalog, enablement, unknown timing and expiry all precede snapshot availability", () => {
     const store = new FixtureStore();
     const cache = new SignalEventCache();

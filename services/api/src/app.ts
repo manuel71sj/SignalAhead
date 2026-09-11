@@ -8,6 +8,7 @@ import { readinessReport, type DependencyClients } from "./readiness.js";
 import { registerCatalogRoutes } from "./routes/catalog.js";
 import { registerSignalRoutes } from "./routes/signals.js";
 import { registerStreamRoutes } from "./routes/stream.js";
+import { registerTimeRoutes } from "./routes/time.js";
 
 export type AppOptions = {
   config: RuntimeConfig;
@@ -36,6 +37,7 @@ export function buildApp(options: AppOptions): FastifyInstance {
     // Register the websocket hooks before declaring any upgrade route.
     await routes.register(websocket, { options: { maxPayload: 2048, perMessageDeflate: false } });
     registerCatalogRoutes(routes, catalogStore);
+    registerTimeRoutes(routes);
     registerSignalRoutes(routes, signalCache, catalogStore);
     registerStreamRoutes(routes, signalCache, catalogStore);
   });

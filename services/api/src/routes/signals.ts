@@ -21,7 +21,8 @@ export function signalResult(approachKey: string, movement: unknown, catalogVers
   const signal = cached.observation;
   if (signal.catalogVersion !== active.catalogVersion || signal.intersectionKey !== intersection.intersectionKey || signal.provider !== intersection.provider || signal.sourceIntersectionId !== intersection.sourceIntersectionId || signal.movement !== "straight") return unavailable("CATALOG_MISMATCH");
   if (signal.timingQuality !== "verified" || signal.unitEvidence.sourceUnit === "unknown" || signal.sourceTimeKind !== "generated" || signal.sourceObservedAtUtcMs === null || signal.remainingAtSourceMs === null || signal.expiresAtUtcMs === null) return unavailable("TIMING_UNVERIFIED");
-  if (signal.signalState === "unknown" || signal.signalState === "flashing") return unavailable("SIGNAL_UNKNOWN");
+  // Flashing is a current state, never a green crossing prediction.
+  if (signal.signalState === "unknown") return unavailable("SIGNAL_UNKNOWN");
   if (signal.sourceObservedAtUtcMs > signal.serverReceivedAtUtcMs || signal.serverReceivedAtUtcMs > signal.serverSentAtUtcMs || signal.serverSentAtUtcMs > now || now - signal.sourceObservedAtUtcMs > MAX_SIGNAL_AGE_MS || now - signal.serverReceivedAtUtcMs > MAX_SIGNAL_AGE_MS || signal.expiresAtUtcMs <= now || signal.sourceObservedAtUtcMs + signal.remainingAtSourceMs <= now) return unavailable("SIGNAL_EXPIRED");
   return { available: true, reason: null, approachKey, snapshot: signal };
 }
