@@ -7,3 +7,10 @@ __pycache__/
 .ruff_cache/
 .venv/
 .spatial-audit/
+node_modules/
+dist/
+coverage/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/

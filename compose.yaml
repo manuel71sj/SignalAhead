@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: signalahead
+      POSTGRES_USER: signalahead
+      POSTGRES_PASSWORD: signalahead
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signalahead -d signalahead"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    image: node:22-bookworm-slim
+    working_dir: /workspace
+    command: ["npm", "run", "dev:api"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: "3000"
+      DATABASE_URL: postgres://signalahead:signalahead@postgres:5432/signalahead
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - api-node-modules:/workspace/node_modules
+      - api-service-node-modules:/workspace/services/api/node_modules
+
+volumes:
+  postgres-data:
+  api-node-modules:
+  api-service-node-modules:
